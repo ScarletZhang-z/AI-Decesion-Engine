@@ -86,12 +86,10 @@ app.post('/api/chat', async (req: Request, res: Response) => {
   let stream: Stream<ResponseStreamEvent> | null = null;
 
   try {
-    // If you are using the free tier in groq, beware that there are rate limits.
-    // For more info, check out:
-    //   https://console.groq.com/docs/rate-limits
+    const model = process.env.OPENAI_MODEL ?? 'gpt-4o-mini';
+
     stream = await openai.responses.create({
-      model: 'openai/gpt-oss-120b',
-      reasoning: { effort: 'low' },
+      model,
       input: chatMessages,
       stream: true,
     });
