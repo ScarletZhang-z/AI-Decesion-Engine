@@ -1,0 +1,32 @@
+{
+  "id": "47649228-28b1-4840-a9e5-852701458b7d",
+  "sessionState": {
+    "contractType": "Employment",
+    "location": "Australia",
+    "department": null
+  },
+  "pendingField": null,
+  "history": [
+    {
+      "role": "user",
+      "content": "I have a sales contract",
+      "ts": 1765624197635
+    },
+    {
+      "role": "assistant",
+      "content": "你目前在哪个国家/地区？",
+      "ts": 1765624199695
+    },
+    {
+      "role": "user",
+      "content": "Employment contract. I am in Australia.",
+      "ts": 1765624365723
+    },
+    {
+      "role": "assistant",
+      "content": "我暂时找不到匹配的规则，请联系 legal@acme.corp。",
+      "ts": 1765624367106
+    }
+  ],
+  "lastActiveAt": 1765624367106
+}

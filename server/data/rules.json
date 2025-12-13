@@ -17,5 +17,43 @@
       }
     ],
     "assigneeEmail": "john@acme.corp"
+  },
+  {
+    "id": "09cd9624-e398-474b-927c-c56dc1807b49",
+    "name": "AU Sales -> John",
+    "enabled": true,
+    "priority": 10,
+    "conditions": [
+      {
+        "field": "contractType",
+        "operator": "equals",
+        "value": "Sales"
+      },
+      {
+        "field": "location",
+        "operator": "equals",
+        "value": "Australia"
+      }
+    ],
+    "assigneeEmail": "john@acme.corp"
+  },
+  {
+    "id": "77d4df19-2b7d-4b3c-847d-c556b5359b13",
+    "name": "US Employment -> Alice",
+    "enabled": true,
+    "priority": 10,
+    "conditions": [
+      {
+        "field": "contractType",
+        "operator": "equals",
+        "value": "Employment"
+      },
+      {
+        "field": "location",
+        "operator": "equals",
+        "value": "United States"
+      }
+    ],
+    "assigneeEmail": "alice@acme.corp"
   }
 ]

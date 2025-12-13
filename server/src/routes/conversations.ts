@@ -1,10 +1,11 @@
+import crypto from 'crypto';
 import path from 'path';
 import { promises as fs } from 'fs';
 import { Router, Request, Response } from 'express';
 
-type ConversationHistoryEntry = { role: 'user' | 'assistant'; content: string; ts: number };
+export type ConversationHistoryEntry = { role: 'user' | 'assistant'; content: string; ts: number };
 
-type Conversation = {
+export type Conversation = {
   id: string;
   sessionState: {
     contractType: string | null;
@@ -19,6 +20,7 @@ type Conversation = {
 const router = Router();
 const conversations = new Map<string, Conversation>();
 const conversationsDir = path.resolve(__dirname, '../../data/conversations');
+const EXPIRY_MS = 30 * 60 * 1000;
 
 const isHistoryEntry = (entry: unknown): entry is ConversationHistoryEntry => {
   if (!entry || typeof entry !== 'object') {
@@ -94,6 +96,21 @@ const ensureConversationsDir = async () => {
   await fs.mkdir(conversationsDir, { recursive: true });
 };
 
+const sweepExpiredConversations = async () => {
+  const now = Date.now();
+
+  for (const [id, conversation] of conversations.entries()) {
+    if (now - conversation.lastActiveAt > EXPIRY_MS) {
+      try {
+        await persistConversation(conversation);
+      } catch (error) {
+        console.error(`Failed to persist conversation ${id} before eviction`, error);
+      }
+      conversations.delete(id);
+    }
+  }
+};
+
 const loadConversationFromFile = async (conversationId: string): Promise<Conversation | null> => {
   const filePath = path.join(conversationsDir, `${conversationId}.json`);
 
@@ -117,6 +134,21 @@ const persistConversation = async (conversation: Conversation): Promise<void> =>
   await fs.writeFile(filePath, JSON.stringify(conversation, null, 2), 'utf-8');
 };
 
+export const createConversation = (conversationId?: string): Conversation => {
+  const now = Date.now();
+  return {
+    id: conversationId || crypto.randomUUID(),
+    sessionState: {
+      contractType: null,
+      location: null,
+      department: null,
+    },
+    pendingField: null,
+    history: [],
+    lastActiveAt: now,
+  };
+};
+
 export const getConversation = async (conversationId: string): Promise<Conversation | null> => {
   if (conversations.has(conversationId)) {
     return conversations.get(conversationId) ?? null;
@@ -134,6 +166,12 @@ export const saveConversation = async (conversation: Conversation): Promise<void
   conversations.set(conversation.id, conversation);
   await persistConversation(conversation);
 };
+
+setInterval(() => {
+  sweepExpiredConversations().catch((error) => {
+    console.error('Error sweeping expired conversations', error);
+  });
+}, 60_000);
 
 router.get('/:id', async (req: Request, res: Response) => {
   const conversationId = req.params.id;
