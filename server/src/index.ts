@@ -6,6 +6,7 @@ import OpenAI from 'openai';
 import { ResponseInput, ResponseStreamEvent } from 'openai/resources/responses/responses';
 import { Stream } from 'openai/core/streaming';
 import rulesRouter from './routes/rules';
+import conversationsRouter from './routes/conversations';
 
 // Load environment variables from the project root first, then allow local overrides in server/.env
 dotenv.config({ path: path.resolve(__dirname, '../../.env') });
@@ -21,6 +22,7 @@ const port = Number.parseInt(process.env.PORT ?? '5000', 10);
 app.use(cors());
 app.use(express.json({ limit: '1mb' }));
 app.use('/api/rules', rulesRouter);
+app.use('/api/conversations', conversationsRouter);
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY, baseURL: process.env.OPENAI_BASE_URL });
 
