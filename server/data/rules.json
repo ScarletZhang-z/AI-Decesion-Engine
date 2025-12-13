@@ -55,5 +55,19 @@
       }
     ],
     "assigneeEmail": "alice@acme.corp"
+  },
+  {
+    "id": "7ed27f17-05d9-47e1-b95a-a0654d9b40d2",
+    "name": "China Sales -> David",
+    "enabled": true,
+    "priority": 12,
+    "conditions": [
+      {
+        "field": "contractType",
+        "operator": "equals",
+        "value": "Employment"
+      }
+    ],
+    "assigneeEmail": "yuanyuanzhang1210life@gmail.com"
   }
 ]

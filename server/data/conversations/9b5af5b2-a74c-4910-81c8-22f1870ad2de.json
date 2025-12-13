@@ -46,7 +46,17 @@
       "role": "assistant",
       "content": "请联系 john@acme.corp 处理你的请求。",
       "ts": 1765625715707
+    },
+    {
+      "role": "user",
+      "content": "china",
+      "ts": 1765626503187
+    },
+    {
+      "role": "assistant",
+      "content": "请联系 john@acme.corp 处理你的请求。",
+      "ts": 1765626504147
     }
   ],
-  "lastActiveAt": 1765625715707
+  "lastActiveAt": 1765626504147
 }

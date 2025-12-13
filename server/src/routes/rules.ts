@@ -3,18 +3,8 @@ import fs from 'fs';
 import { promises as fsPromises } from 'fs';
 import path from 'path';
 import { Router, Request, Response } from 'express';
-
-export type Field = 'contractType' | 'location' | 'department';
-type Operator = 'equals';
-export type Condition = { field: Field; operator: Operator; value: string };
-export type Rule = {
-  id: string;
-  name: string;
-  enabled: boolean;
-  priority: number;
-  conditions: Condition[];
-  assigneeEmail: string;
-};
+import type { Condition, Field, Rule } from '../domain/rules';
+export type { Condition, Field, Rule } from '../domain/rules';
 
 const router = Router();
 

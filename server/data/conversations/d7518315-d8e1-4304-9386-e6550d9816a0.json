@@ -1,0 +1,42 @@
+{
+  "id": "d7518315-d8e1-4304-9386-e6550d9816a0",
+  "sessionState": {
+    "contractType": "Employment",
+    "location": "Australia",
+    "department": null
+  },
+  "pendingField": null,
+  "history": [
+    {
+      "role": "user",
+      "content": "dd",
+      "ts": 1765626521364
+    },
+    {
+      "role": "assistant",
+      "content": "这是 Sales、Employment 还是 NDA？",
+      "ts": 1765626522733
+    },
+    {
+      "role": "user",
+      "content": "Employment",
+      "ts": 1765626526609
+    },
+    {
+      "role": "assistant",
+      "content": "你目前在哪个国家/地区？",
+      "ts": 1765626528762
+    },
+    {
+      "role": "user",
+      "content": "au",
+      "ts": 1765626537139
+    },
+    {
+      "role": "assistant",
+      "content": "我暂时找不到匹配的规则，请联系 legal@acme.corp。",
+      "ts": 1765626538048
+    }
+  ],
+  "lastActiveAt": 1765626538048
+}

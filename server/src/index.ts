@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 import express, { Request, Response } from 'express';
 import cors from 'cors';
 import OpenAI from 'openai';
-import rulesRouter, { Field, Rule, getRules } from './routes/rules';
+import rulesRouter, { getRules } from './routes/rules';
 import conversationsRouter, {
   Conversation,
   ConversationHistoryEntry,
@@ -11,6 +11,10 @@ import conversationsRouter, {
   getConversation as loadConversation,
   saveConversation,
 } from './routes/conversations';
+import { ChatCommand, ChatRequestDTO, ChatResponseDTO, toChatCommand, toChatResponseDTO } from './interfaces/http/dto/chat';
+import type { Field } from './domain/rules';
+import type { RuleRepository } from './application/routing/ruleRouter';
+import { createRuleRouter } from './application/routing/ruleRouter';
 
 // Load environment variables from the project root first, then allow local overrides in server/.env
 dotenv.config({ path: path.resolve(__dirname, '../../.env') });
@@ -33,6 +37,12 @@ const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY, baseURL: process
 type SessionState = Conversation['sessionState'];
 
 const requiredFieldOrder: Field[] = ['contractType', 'location', 'department'];
+
+const ruleRepository: RuleRepository = {
+  getAll: () => getRules(),
+};
+
+const ruleRouter = createRuleRouter({ repository: ruleRepository });
 
 const normalizeString = (value: string) => value.trim().toLowerCase();
 
@@ -159,16 +169,6 @@ const extractFieldsWithLLM = async (userMessage: string): Promise<Partial<Sessio
   }
 };
 
-const collectRequiredFields = (rules: Rule[]): Set<Field> => {
-  const required = new Set<Field>();
-  for (const rule of rules) {
-    for (const condition of rule.conditions) {
-      required.add(condition.field);
-    }
-  }
-  return required;
-};
-
 const updateSessionState = (session: SessionState, update: Partial<SessionState>) => {
   if (update.contractType !== undefined && update.contractType !== session.contractType && update.contractType !== null) {
     session.contractType = update.contractType;
@@ -186,20 +186,8 @@ const appendHistory = (conversation: Conversation, entry: ConversationHistoryEnt
   conversation.lastActiveAt = entry.ts;
 };
 
-const matchRule = (rules: Rule[], session: SessionState): Rule | undefined =>
-  rules.find((rule) => rule.conditions.every((condition) => session[condition.field] === condition.value));
-
-app.get('/health', (_req: Request, res: Response) => {
-  res.json({ status: 'ok' });
-});
-
-app.post('/api/chat', async (req: Request, res: Response) => {
-  const { conversationId: incomingConversationId, userMessage } = req.body ?? {};
-
-  if (typeof userMessage !== 'string' || !userMessage.trim()) {
-    res.status(400).json({ error: 'userMessage is required' });
-    return;
-  }
+const handleChatCommand = async (command: ChatCommand): Promise<ChatResponseDTO> => {
+  const { conversationId: incomingConversationId, userMessage } = command;
 
   const trimmedMessage = userMessage.trim();
   const now = Date.now();
@@ -209,15 +197,12 @@ app.post('/api/chat', async (req: Request, res: Response) => {
     conversation = await loadConversation(incomingConversationId.trim());
   }
   if (!conversation) {
-    conversation = createConversation(typeof incomingConversationId === 'string' && incomingConversationId.trim() ? incomingConversationId.trim() : undefined);
+    conversation = createConversation(
+      typeof incomingConversationId === 'string' && incomingConversationId.trim() ? incomingConversationId.trim() : undefined
+    );
   }
 
   appendHistory(conversation, { role: 'user', content: trimmedMessage, ts: now });
-
-  const activeRules = getRules()
-    .filter((rule) => rule.enabled)
-    .sort((a, b) => b.priority - a.priority);
-  const requiredFields = collectRequiredFields(activeRules);
 
   let parsedFromPending = false;
   if (conversation.pendingField) {
@@ -234,15 +219,15 @@ app.post('/api/chat', async (req: Request, res: Response) => {
     updateSessionState(conversation.sessionState, extracted);
   }
 
-  const matched = matchRule(activeRules, conversation.sessionState);
+  const ruleResult = await ruleRouter.route({ sessionState: conversation.sessionState });
 
   let responseText: string;
 
-  if (matched) {
-    responseText = `请联系 ${matched.assigneeEmail} 处理你的请求。`;
+  if (ruleResult.status === 'matched') {
+    responseText = `请联系 ${ruleResult.assigneeEmail} 处理你的请求。`;
     conversation.pendingField = null;
   } else {
-    const missingFields = Array.from(requiredFields).filter((field) => conversation.sessionState[field] === null);
+    const missingFields = ruleResult.status === 'missing_fields' ? ruleResult.fields : [];
 
     if (missingFields.length > 0) {
       const nextField = chooseNextField(missingFields);
@@ -267,7 +252,24 @@ app.post('/api/chat', async (req: Request, res: Response) => {
     console.error('Failed to persist conversation', error);
   }
 
-  res.json({ conversationId: conversation.id, response: responseText });
+  return { conversationId: conversation.id, response: responseText };
+};
+
+app.get('/health', (_req: Request, res: Response) => {
+  res.json({ status: 'ok' });
+});
+
+app.post('/api/chat', async (req: Request, res: Response) => {
+  const dto = (req.body ?? {}) as ChatRequestDTO;
+  const command = toChatCommand(dto);
+
+  if (typeof command.userMessage !== 'string' || !command.userMessage.trim()) {
+    res.status(400).json({ error: 'userMessage is required' });
+    return;
+  }
+
+  const result = await handleChatCommand(command);
+  res.json(toChatResponseDTO(result));
 });
 
 app.listen(port, () => {
