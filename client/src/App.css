@@ -63,6 +63,19 @@
   font-size: 2rem;
 }
 
+.chat-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.chat-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 .chat-header p {
   margin: 0;
   color: #94a3b8;
@@ -85,6 +98,11 @@
 .placeholder {
   margin: auto;
   color: #64748b;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: center;
 }
 
 .message {

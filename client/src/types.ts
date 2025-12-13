@@ -6,6 +6,21 @@ export type Condition = {
   value: string;
 };
 
+export type Role = "user" | "assistant";
+
+export type ConversationHistoryEntry = {
+  role: Role;
+  content: string;
+  ts: number;
+};
+
+export type Message = {
+  id: string;
+  role: Role;
+  content: string;
+  ts?: number;
+};
+
 export type Rule = {
   id: string;
   name: string;

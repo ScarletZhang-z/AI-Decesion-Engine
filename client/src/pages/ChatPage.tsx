@@ -1,153 +1,167 @@
+import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import {
-  ChangeEvent,
-  FormEvent,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+  ConversationResponse,
+  fetchConversation,
+  sendChatMessage,
+} from "../api";
+import { Message, Role } from "../types";
 
-const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL ?? "http://localhost:5000";
-
-type Role = "user" | "assistant";
-
-interface ChatMessage {
-  id: string;
-  role: Role;
-  content: string;
-}
-
-const createMessage = (overrides?: Partial<ChatMessage>): ChatMessage => ({
-  id: Math.random().toString(36).slice(2),
-  role: "assistant",
-  content: "",
-  ...overrides,
+const createMessage = (role: Role, content: string, ts?: number): Message => ({
+  id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
+  role,
+  content,
+  ts,
 });
 
 export default function ChatPage() {
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const [conversationId, setConversationId] = useState<string | null>(null);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
-  const [isStreaming, setIsStreaming] = useState(false);
+  const [loadingHistory, setLoadingHistory] = useState(false);
+  const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
   const canSubmit = useMemo(
-    () => input.trim().length > 0 && !isStreaming,
-    [input, isStreaming]
+    () => input.trim().length > 0 && !sending,
+    [input, sending]
   );
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setInput(event.target.value);
+  useEffect(() => {
+    const paramId = searchParams.get("conversationId");
+    if (!paramId) {
+      setConversationId(null);
+      setMessages([]);
+      return;
+    }
+
+    let active = true;
+
+    const loadConversation = async (id: string) => {
+      setLoadingHistory(true);
+      setError(null);
+      try {
+        const data: ConversationResponse = await fetchConversation(id);
+        if (!active) return;
+        setConversationId(data.conversationId);
+        setMessages(
+          data.history.map((entry, index) => ({
+            id: `${entry.ts}-${index}`,
+            role: entry.role,
+            content: entry.content,
+            ts: entry.ts,
+          }))
+        );
+      } catch (caughtError) {
+        if (!active) return;
+        const message =
+          caughtError instanceof Error
+            ? caughtError.message
+            : "Failed to load conversation";
+        setError(message);
+        setConversationId(null);
+        setMessages([]);
+      } finally {
+        if (active) {
+          setLoadingHistory(false);
+        }
+      }
+    };
+
+    loadConversation(paramId);
+
+    return () => {
+      active = false;
+    };
+  }, [searchParams]);
+
+  const updateUrl = (id: string | null) => {
+    const search = id ? `?conversationId=${encodeURIComponent(id)}` : "";
+    navigate({ pathname: "/chat", search }, { replace: true });
   };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const userText = input.trim();
+    if (!userText || sending) return;
 
-    if (!userText || isStreaming) {
-      return;
-    }
-
-    const userMessage = createMessage({ role: "user", content: userText });
-    const assistantMessage = createMessage({ role: "assistant", content: "" });
-
-    setMessages((prev) => [...prev, userMessage, assistantMessage]);
+    const userMessage = createMessage("user", userText);
+    setMessages((prev) => [...prev, userMessage]);
     setInput("");
     setError(null);
-    setIsStreaming(true);
-
-    const conversation = [...messages, { role: "user", content: userText }]
-      .map(({ role, content }) => ({ role, content }))
-      .filter(
-        (message): message is { role: Role; content: string } =>
-          typeof message.role === "string" &&
-          typeof message.content === "string"
-      );
+    setSending(true);
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/chat`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ messages: conversation }),
+      const chatResponse = await sendChatMessage({
+        conversationId,
+        userMessage: userText,
       });
 
-      if (!response.ok || !response.body) {
-        throw new Error("Failed to connect to chat service");
-      }
-
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
-      let assistantText = "";
-
-      while (true) {
-        const { value, done } = await reader.read();
-        if (done) {
-          break;
-        }
-
-        if (value) {
-          assistantText += decoder.decode(value, { stream: true });
-          const currentText = assistantText;
-          setMessages((prev) =>
-            prev.map((message) =>
-              message.id === assistantMessage.id
-                ? { ...message, content: currentText }
-                : message
-            )
-          );
-        }
-      }
-
-      assistantText += decoder.decode();
-
-      setMessages((prev) =>
-        prev.map((message) =>
-          message.id === assistantMessage.id
-            ? { ...message, content: assistantText }
-            : message
-        )
+      const assistantMessage = createMessage(
+        "assistant",
+        chatResponse.response
       );
+
+      setConversationId(chatResponse.conversationId);
+      updateUrl(chatResponse.conversationId);
+      setMessages((prev) => [...prev, assistantMessage]);
     } catch (caughtError) {
       const message =
         caughtError instanceof Error
           ? caughtError.message
-          : "Something went wrong";
-      console.error(caughtError);
+          : "Failed to send message";
       setError(message);
-      setMessages((prev) =>
-        prev.filter((msg) => msg.id !== assistantMessage.id)
-      );
     } finally {
-      setIsStreaming(false);
+      setSending(false);
     }
   };
+
+  const handleStartNew = () => {
+    setConversationId(null);
+    setMessages([]);
+    setError(null);
+    setInput("");
+    updateUrl(null);
+  };
+
+  const hasMessages = messages.length > 0;
 
   return (
     <div className="chat-page">
       <header className="chat-header">
         <h1>Frontdoor</h1>
+        <div className="chat-meta">
+          {conversationId ? (
+            <span className="pill pill-success">Conversation {conversationId}</span>
+          ) : (
+            <span className="pill pill-muted">Start new chat</span>
+          )}
+        </div>
       </header>
 
       <div className="chat-window">
-        {messages.length === 0 && (
-          <p className="placeholder">No messages yet... Make a request!</p>
+        {loadingHistory && <p className="placeholder">Loading history…</p>}
+        {!loadingHistory && !hasMessages && (
+          <div className="placeholder">
+            <p>No conversation yet.</p>
+            <button className="button ghost" type="button" onClick={handleStartNew}>
+              Start new chat
+            </button>
+          </div>
         )}
         {messages.map((message) => (
           <div key={message.id} className={`message message-${message.role}`}>
             <span className="message-role">
               {message.role === "user" ? "You" : "Assistant"}
             </span>
-            <p>
-              {message.content ||
-                (message.role === "assistant" && isStreaming ? "…" : "")}
-            </p>
+            <p>{message.content}</p>
           </div>
         ))}
         <div ref={messagesEndRef} />
@@ -160,14 +174,20 @@ export default function ChatPage() {
           id="chat-input"
           type="text"
           value={input}
-          onChange={handleInputChange}
+          onChange={(event) => setInput(event.target.value)}
           placeholder="What legal request do you have?"
-          disabled={isStreaming}
+          disabled={sending}
         />
         <button type="submit" disabled={!canSubmit}>
-          {isStreaming ? "Thinking…" : "Send"}
+          {sending ? "Sending…" : "Send"}
         </button>
       </form>
+
+      {hasMessages && (
+        <button className="button ghost" type="button" onClick={handleStartNew}>
+          Start new chat
+        </button>
+      )}
     </div>
   );
 }

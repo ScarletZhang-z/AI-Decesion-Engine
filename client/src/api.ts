@@ -1,4 +1,8 @@
-import { Rule, RulePayload } from "./types";
+import {
+  ConversationHistoryEntry,
+  Rule,
+  RulePayload,
+} from "./types";
 
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL ?? "http://localhost:5000";
@@ -66,4 +70,41 @@ export const deleteRule = async (id: string): Promise<void> => {
     const message = await parseErrorMessage(response);
     throw new Error(message);
   }
+};
+
+export type ChatResponse = {
+  conversationId: string;
+  response: string;
+};
+
+export type ConversationResponse = {
+  conversationId: string;
+  history: ConversationHistoryEntry[];
+};
+
+export const fetchConversation = async (
+  conversationId: string
+): Promise<ConversationResponse> => {
+  const response = await fetch(
+    `${API_BASE_URL}/api/conversations/${conversationId}`
+  );
+  return handleJson<ConversationResponse>(response);
+};
+
+export const sendChatMessage = async (params: {
+  conversationId?: string | null;
+  userMessage: string;
+}): Promise<ChatResponse> => {
+  const response = await fetch(`${API_BASE_URL}/api/chat`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      conversationId: params.conversationId ?? undefined,
+      userMessage: params.userMessage,
+    }),
+  });
+
+  return handleJson<ChatResponse>(response);
 };
