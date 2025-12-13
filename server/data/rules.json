@@ -1,0 +1,21 @@
+[
+  {
+    "id": "b1a652f4-81a3-4bf8-bdec-45413fbc2228",
+    "name": "AU Sales → John",
+    "enabled": true,
+    "priority": 10,
+    "conditions": [
+      {
+        "field": "contractType",
+        "operator": "equals",
+        "value": "Sales"
+      },
+      {
+        "field": "location",
+        "operator": "equals",
+        "value": "Australia"
+      }
+    ],
+    "assigneeEmail": "john@acme.corp"
+  }
+]
