@@ -1,0 +1,52 @@
+{
+  "id": "61bc4c35-34dc-4114-a0ed-c59cd2373121",
+  "sessionState": {
+    "contractType": "Sales",
+    "location": "Australia",
+    "department": null
+  },
+  "pendingField": null,
+  "history": [
+    {
+      "role": "user",
+      "content": "dd",
+      "ts": 1765628445127
+    },
+    {
+      "role": "assistant",
+      "content": "这是 Sales、Employment 还是 NDA？",
+      "ts": 1765628446211
+    },
+    {
+      "role": "user",
+      "content": "Sales",
+      "ts": 1765628452338
+    },
+    {
+      "role": "assistant",
+      "content": "你目前在哪个国家/地区？",
+      "ts": 1765628453222
+    },
+    {
+      "role": "user",
+      "content": "China",
+      "ts": 1765628456666
+    },
+    {
+      "role": "assistant",
+      "content": "你目前在哪个国家/地区？",
+      "ts": 1765628457740
+    },
+    {
+      "role": "user",
+      "content": "AU",
+      "ts": 1765628460177
+    },
+    {
+      "role": "assistant",
+      "content": "请联系 john@acme.corp 处理你的请求。",
+      "ts": 1765628461125
+    }
+  ],
+  "lastActiveAt": 1765628461125
+}

@@ -12,9 +12,7 @@ import { createConversationRepository } from './application/conversations/conver
 import { createChatService } from './application/conversations/chatService';
 import { createLLMFieldExtractor } from './application/conversations/llmFieldExtractor';
 
-// Load environment variables from the project root first, then allow local overrides in server/.env
 dotenv.config({ path: path.resolve(__dirname, '../../.env') });
-dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
 if (!process.env.OPENAI_API_KEY) {
   console.warn('Warning: OPENAI_API_KEY is not set. LLM calls will fail.');
