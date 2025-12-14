@@ -1,5 +1,4 @@
-import path from 'path';
-import dotenv from 'dotenv';
+import './env';
 import express, { Request, Response } from 'express';
 import cors from 'cors';
 import OpenAI from 'openai';
@@ -11,8 +10,6 @@ import { createRuleRouter } from './application/routing/ruleRouter';
 import { createConversationRepository } from './application/conversations/conversationRepository';
 import { createChatService } from './application/conversations/chatService';
 import { createLLMFieldExtractor } from './application/conversations/llmFieldExtractor';
-
-dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
 if (!process.env.OPENAI_API_KEY) {
   console.warn('Warning: OPENAI_API_KEY is not set. LLM calls will fail.');

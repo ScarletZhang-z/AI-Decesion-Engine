@@ -11,6 +11,7 @@ export interface ChatCommand {
 export interface ChatResponseDTO {
   conversationId: string;
   response: string;
+  quickReplies?: string[];
 }
 
 export const toChatCommand = (dto: ChatRequestDTO): ChatCommand => ({

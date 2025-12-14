@@ -2,8 +2,12 @@ import type { ChatCommand, ChatResponseDTO } from '../../interfaces/http/dto/cha
 import type { Field } from '../../domain/rules';
 import type { Router as RuleRouter } from '../routing/ruleRouter';
 import { Conversation, appendHistory, updateSessionState } from '../../domain/conversation';
-import { chooseNextField, parseAnswerForField, questionForField, FieldExtractor } from './fieldParsers';
+import type { FieldExtractor } from './fieldParsers';
+import { parseAnswerForField } from './fieldParsers';
 import { selectNextField } from '../nextQuestionSelector';
+import { composePlan } from '../responseComposer';
+import type { FieldName } from '../responseComposer';
+import { rewriteWithLLM } from '../llmCopywriter';
 import type { ConversationRepository } from './conversationRepository';
 
 type Dependencies = {
@@ -14,6 +18,29 @@ type Dependencies = {
 };
 
 const DEFAULT_REQUIRED_FIELD_ORDER: Field[] = ['contractType', 'location', 'department'];
+const FALLBACK_EMAIL = process.env.FALLBACK_EMAIL ?? 'legal@acme.corp';
+
+const buildAskFields = (missingFields: Field[], requiredFieldOrder: Field[], preferred?: Field | null): Field[] => {
+  const prioritized: Field[] = [];
+  if (preferred && missingFields.includes(preferred)) {
+    prioritized.push(preferred);
+  }
+
+  const orderedMissing = requiredFieldOrder.filter((field) => missingFields.includes(field));
+  for (const field of orderedMissing) {
+    if (!prioritized.includes(field)) {
+      prioritized.push(field);
+    }
+  }
+
+  for (const field of missingFields) {
+    if (!prioritized.includes(field)) {
+      prioritized.push(field);
+    }
+  }
+
+  return prioritized.slice(0, 2);
+};
 
 export const createChatService = ({
   conversationRepository,
@@ -56,37 +83,35 @@ export const createChatService = ({
 
     const ruleResult = await ruleRouter.route({ sessionState: conversation.sessionState });
 
-    let responseText: string;
+    let askFields: Field[] = [];
+    let assigneeEmail: string | null = null;
 
     if (ruleResult.status === 'matched') {
-      responseText = `Please contact ${ruleResult.assigneeEmail} to handle your request.`;
+      assigneeEmail = ruleResult.assigneeEmail;
       conversation.pendingField = null;
+    } else if (ruleResult.status === 'missing_fields') {
+      const missingFields = ruleResult.fields ?? [];
+      const selection =
+        Array.isArray(ruleResult.rules) && ruleResult.rules.length > 0
+          ? selectNextField({ known: conversation.sessionState, rules: ruleResult.rules, defaultOrder: requiredFieldOrder })
+          : null;
+      askFields = buildAskFields(missingFields, requiredFieldOrder, selection?.field ?? null);
+      conversation.pendingField = askFields[0] ?? null;
     } else {
-      const missingFields = ruleResult.status === 'missing_fields' ? ruleResult.fields : [];
-
-      if (missingFields.length > 0) {
-        const selection =
-          ruleResult.status === 'missing_fields' && Array.isArray(ruleResult.rules) && ruleResult.rules.length > 0
-            ? selectNextField({ known: conversation.sessionState, rules: ruleResult.rules, defaultOrder: requiredFieldOrder })
-            : null;
-
-        const preferredField = selection?.field;
-        const nextField =
-          preferredField && missingFields.includes(preferredField)
-            ? preferredField
-            : chooseNextField(missingFields, requiredFieldOrder);
-        if (nextField) {
-          conversation.pendingField = nextField;
-          responseText = questionForField(nextField);
-        } else {
-          responseText = 'I cannot find a matching rule right now; please contact legal@acme.corp.';
-          conversation.pendingField = null;
-        }
-      } else {
-        responseText = 'I cannot find a matching rule right now; please contact legal@acme.corp.';
-        conversation.pendingField = null;
-      }
+      conversation.pendingField = null;
     }
+
+    const plan = composePlan({
+      userMessage: trimmedMessage,
+      known: conversation.sessionState as Partial<Record<FieldName, string | null>>,
+      askFields: askFields as FieldName[],
+      assigneeEmail,
+      fallbackEmail: FALLBACK_EMAIL,
+    });
+
+    const rewritten = process.env.OPENAI_API_KEY ? await rewriteWithLLM({ plan }) : null;
+    const responseText = rewritten ?? plan.textTemplate;
+    const quickReplies = plan.kind === 'ask' ? plan.quickReplies : undefined;
 
     appendHistory(conversation, { role: 'assistant', content: responseText, ts: Date.now() });
 
@@ -96,6 +121,6 @@ export const createChatService = ({
       console.error('Failed to persist conversation', error);
     }
 
-    return { conversationId: conversation.id, response: responseText };
+    return { conversationId: conversation.id, response: responseText, quickReplies };
   },
 });
