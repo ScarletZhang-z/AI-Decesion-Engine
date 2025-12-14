@@ -12,7 +12,7 @@ export type RoutingDebugInfo = {
 
 export type RoutingDecision =
   | { status: 'matched'; assigneeEmail: string; matchedRuleId: string; debug?: RoutingDebugInfo }
-  | { status: 'missing_fields'; fields: Field[]; debug?: RoutingDebugInfo }
+  | { status: 'missing_fields'; fields: Field[]; rules?: Rule[]; debug?: RoutingDebugInfo }
   | { status: 'no_match'; debug?: RoutingDebugInfo }
   | { status: 'no_rules'; debug?: RoutingDebugInfo }
   | { status: 'error'; message: string; debug?: RoutingDebugInfo };
@@ -73,7 +73,7 @@ export const createRuleRouter = ({
     }
 
     if (evaluation.status === 'missing_fields') {
-      return { status: 'missing_fields', fields: evaluation.missingFields, debug };
+      return { status: 'missing_fields', fields: evaluation.missingFields, rules, debug };
     }
 
     return { status: 'no_match', debug };

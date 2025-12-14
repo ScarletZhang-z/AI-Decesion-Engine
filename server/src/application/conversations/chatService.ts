@@ -3,6 +3,7 @@ import type { Field } from '../../domain/rules';
 import type { Router as RuleRouter } from '../routing/ruleRouter';
 import { Conversation, appendHistory, updateSessionState } from '../../domain/conversation';
 import { chooseNextField, parseAnswerForField, questionForField, FieldExtractor } from './fieldParsers';
+import { selectNextField } from '../nextQuestionSelector';
 import type { ConversationRepository } from './conversationRepository';
 
 type Dependencies = {
@@ -64,7 +65,16 @@ export const createChatService = ({
       const missingFields = ruleResult.status === 'missing_fields' ? ruleResult.fields : [];
 
       if (missingFields.length > 0) {
-        const nextField = chooseNextField(missingFields, requiredFieldOrder);
+        const selection =
+          ruleResult.status === 'missing_fields' && Array.isArray(ruleResult.rules) && ruleResult.rules.length > 0
+            ? selectNextField({ known: conversation.sessionState, rules: ruleResult.rules, defaultOrder: requiredFieldOrder })
+            : null;
+
+        const preferredField = selection?.field;
+        const nextField =
+          preferredField && missingFields.includes(preferredField)
+            ? preferredField
+            : chooseNextField(missingFields, requiredFieldOrder);
         if (nextField) {
           conversation.pendingField = nextField;
           responseText = questionForField(nextField);
