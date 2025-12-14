@@ -14,7 +14,7 @@
     },
     {
       "role": "assistant",
-      "content": "这是 Sales、Employment 还是 NDA？",
+      "content": "Is this Sales, Employment, or NDA?",
       "ts": 1765627156424
     },
     {
@@ -24,7 +24,7 @@
     },
     {
       "role": "assistant",
-      "content": "你目前在哪个国家/地区？",
+      "content": "Which country or region are you currently in?",
       "ts": 1765627164372
     },
     {
@@ -34,7 +34,7 @@
     },
     {
       "role": "assistant",
-      "content": "你目前在哪个国家/地区？",
+      "content": "Which country or region are you currently in?",
       "ts": 1765627169495
     },
     {
@@ -44,7 +44,7 @@
     },
     {
       "role": "assistant",
-      "content": "你目前在哪个国家/地区？",
+      "content": "Which country or region are you currently in?",
       "ts": 1765627173656
     }
   ],

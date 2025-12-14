@@ -62,13 +62,13 @@ export const chooseNextField = (missingFields: Field[], requiredOrder: Field[]):
 export const questionForField = (field: Field): string => {
   switch (field) {
     case 'contractType':
-      return '这是 Sales、Employment 还是 NDA？';
+      return 'Is this Sales, Employment, or NDA?';
     case 'location':
-      return '你目前在哪个国家/地区？';
+      return 'Which country or region are you currently in?';
     case 'department':
-      return '你所在的部门是？';
+      return 'Which department are you in?';
     default:
-      return '请提供更多信息。';
+      return 'Please provide more information.';
   }
 };
 

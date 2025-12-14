@@ -58,7 +58,7 @@ export const createChatService = ({
     let responseText: string;
 
     if (ruleResult.status === 'matched') {
-      responseText = `请联系 ${ruleResult.assigneeEmail} 处理你的请求。`;
+      responseText = `Please contact ${ruleResult.assigneeEmail} to handle your request.`;
       conversation.pendingField = null;
     } else {
       const missingFields = ruleResult.status === 'missing_fields' ? ruleResult.fields : [];
@@ -69,11 +69,11 @@ export const createChatService = ({
           conversation.pendingField = nextField;
           responseText = questionForField(nextField);
         } else {
-          responseText = '我暂时找不到匹配的规则，请联系 legal@acme.corp。';
+          responseText = 'I cannot find a matching rule right now; please contact legal@acme.corp.';
           conversation.pendingField = null;
         }
       } else {
-        responseText = '我暂时找不到匹配的规则，请联系 legal@acme.corp。';
+        responseText = 'I cannot find a matching rule right now; please contact legal@acme.corp.';
         conversation.pendingField = null;
       }
     }

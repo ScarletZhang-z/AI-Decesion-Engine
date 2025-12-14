@@ -14,7 +14,7 @@
     },
     {
       "role": "assistant",
-      "content": "这是 Sales、Employment 还是 NDA？",
+      "content": "Is this Sales, Employment, or NDA?",
       "ts": 1765624210077
     }
   ],
