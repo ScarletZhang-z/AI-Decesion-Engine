@@ -60,7 +60,7 @@
     "id": "7ed27f17-05d9-47e1-b95a-a0654d9b40d2",
     "name": "China Sales -> David",
     "enabled": true,
-    "priority": 12,
+    "priority": 5,
     "conditions": [
       {
         "field": "contractType",

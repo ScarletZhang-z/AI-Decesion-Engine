@@ -77,7 +77,10 @@ export const createChatService = ({
     }
 
     if (conversation.pendingField === null || !parsedFromPending) {
-      const extracted = await fieldExtractor.extractWithLLM(trimmedMessage);
+      const extracted = await fieldExtractor.extractWithLLM(trimmedMessage, {
+        history: conversation.history,
+        known: conversation.sessionState,
+      });
       updateSessionState(conversation.sessionState, extracted);
     }
 

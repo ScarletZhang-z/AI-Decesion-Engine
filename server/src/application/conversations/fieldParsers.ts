@@ -1,40 +1,26 @@
 import type { Field } from '../../domain/rules';
-import type { SessionState } from '../../domain/conversation';
+import type { SessionState, ConversationHistoryEntry } from '../../domain/conversation';
+import { normalizeContractType, normalizeDepartment, normalizeLocation } from '../normalizers';
 
 const normalizeString = (value: string) => value.trim().toLowerCase();
 
 const parseContractType = (message: string): string | null => {
   const normalized = normalizeString(message);
 
-  if (/\bnda\b|\bnon[-\s]?disclosure\b|confidentiality/.test(normalized)) {
-    return 'NDA';
-  }
-  if (/(employment|employee|hiring|hire|job offer|hr)/.test(normalized)) {
-    return 'Employment';
-  }
-  if (/(sales|sale|sell|commercial|deal|revenue)/.test(normalized)) {
-    return 'Sales';
-  }
-
-  return null;
+  const normalizedValue = normalizeContractType(message);
+  return normalizedValue && normalizedValue.length <= 50 ? normalizedValue : null;
 };
 
 const parseLocation = (message: string): string | null => {
-  const normalized = normalizeString(message);
+  const normalized = normalizeString(message).replace(/\./g, ' ');
 
-  if (/\baustralia\b|\bau\b/.test(normalized)) {
-    return 'Australia';
-  }
-  if (/\b(united states|usa|us|america)\b/.test(normalized)) {
-    return 'United States';
-  }
-
-  return null;
+  const normalizedValue = normalizeLocation(message);
+  return normalizedValue && normalizedValue.length <= 50 ? normalizedValue : null;
 };
 
 const parseDepartment = (message: string): string | null => {
-  const trimmed = message.trim();
-  return trimmed.length > 0 ? trimmed : null;
+  const normalizedValue = normalizeDepartment(message);
+  return normalizedValue && normalizedValue.length <= 80 ? normalizedValue : null;
 };
 
 export const parseAnswerForField = (field: Field, message: string): string | null => {
@@ -73,5 +59,8 @@ export const questionForField = (field: Field): string => {
 };
 
 export type FieldExtractor = {
-  extractWithLLM(userMessage: string): Promise<Partial<SessionState>>;
+  extractWithLLM(
+    userMessage: string,
+    options?: { history?: ConversationHistoryEntry[]; known?: Partial<SessionState> }
+  ): Promise<Partial<SessionState>>;
 };

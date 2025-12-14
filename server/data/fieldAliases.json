@@ -1,0 +1,18 @@
+{
+  "contractType": {
+    "NDA": ["nda", "non disclosure", "non-disclosure", "confidentiality"],
+    "Employment": ["employment", "employee", "hiring", "hire", "job offer", "hr", "recruit", "talent"],
+    "Sales": ["sales", "sale", "sell", "commercial", "deal", "revenue", "customer", "client"]
+  },
+  "location": {
+    "Australia": ["australia", "au", "sydney", "melbourne", "nsw", "vic"],
+    "United States": ["united states", "unitedstates", "usa", "u s a", "u.s.a", "us", "u s", "america", "california", "new york", "ny", "texas", "bay area"]
+  },
+  "department": {
+    "Engineering": ["engineering", "eng", "dev", "developer", "tech"],
+    "Marketing": ["marketing", "growth", "brand"],
+    "Finance": ["finance", "fin", "accounting"],
+    "Sales": ["sales", "revenue", "bd", "business development"],
+    "HR": ["hr", "people", "talent", "human resources"]
+  }
+}
