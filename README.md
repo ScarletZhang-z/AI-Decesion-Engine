@@ -111,4 +111,7 @@ A two-part web application consisting of a TypeScript React frontend and a TypeS
 
 ## Lastly
 We can't wait to see what you come up with! For any questions feel free to reach out to vince.mu@checkbox.ai
+
+## Docs
+- Implementation overview: [docs/implementation.md](docs/implementation.md)
  
