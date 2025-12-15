@@ -235,12 +235,11 @@
 .mobile-input-shell {
   flex: 1;
   display: flex;
-  grid-template-columns: auto 1fr auto;
-  align-items: center;
-  padding: 0;
+  padding: 0 0.2rem 0 0.5rem;
   box-shadow: 0 12px 26px rgba(0, 0, 0, 0.16);
   gap: 0.35rem;
   background:#ECE6F0;
+  align-items: center;
 }
 
 .mobile-input-field {
@@ -248,20 +247,30 @@
   border: none;
   background: transparent;
   color: #1d1f34;
-  font-size: 0.98rem;
-  font-weight: 700;
+  font-size: 1rem;
+  font-weight: 500;
   letter-spacing: 0.01em;
   outline: none;
+  resize: none;
+  line-height: 1.45;
+  padding: 0.4rem 0.9rem;
+  min-height: 30px;
+  max-height: 140px;
+  overflow-y: auto;
+  box-sizing: border-box;
 }
 
 .mobile-input-field::placeholder {
-  color: #fff;
+  color: #49454F;
+  opacity: 1; 
+  font-size: 1rem;
+  font-weight: 500;
 }
 
 .mobile-input-shell .icon-button {
   background: transparent;
   color: #3d3f56;
-  width: 38px;
+  width: 32px;
   height: 32px;
   box-shadow: none;
 }
