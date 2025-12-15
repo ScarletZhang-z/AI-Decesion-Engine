@@ -51,12 +51,32 @@
   border-radius: 50%;
   background: #d9dbff;
   opacity: 0.6;
+  animation: typingDot 1.15s infinite ease-in-out;
 }
 
 .typing-dots span:nth-child(2) {
-  opacity: 0.4;
+  animation-delay: 0.15s;
 }
 
 .typing-dots span:nth-child(3) {
-  opacity: 0.25;
+  animation-delay: 0.3s;
+}
+
+@keyframes typingDot {
+  0% {
+    opacity: 0.35;
+    transform: translateY(0);
+  }
+  35% {
+    opacity: 0.9;
+    transform: translateY(-6px);
+  }
+  70% {
+    opacity: 0.45;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0.35;
+    transform: translateY(0);
+  }
 }

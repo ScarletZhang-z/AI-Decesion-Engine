@@ -2,20 +2,26 @@ import { useEffect, useRef } from "react";
 import { ChatMessage } from "./types";
 import "./ChatTranscript.css";
 
-export function ChatTranscript({ messages }: { messages: ChatMessage[] }) {
+export function ChatTranscript({
+  messages,
+  showTyping = true,
+}: {
+  messages: ChatMessage[];
+  showTyping?: boolean;
+}) {
   const containerRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     if (!containerRef.current) return;
     containerRef.current.scrollTop = containerRef.current.scrollHeight;
-  }, [messages]);
+  }, [messages, showTyping]);
 
   return (
     <section className="mobile-chat-body" ref={containerRef}>
       {messages.map((message) => (
         <MessageBubble key={message.id} message={message} />
       ))}
-      <TypingIndicator />
+      {showTyping ? <TypingIndicator /> : null}
     </section>
   );
 }

@@ -1,0 +1,22 @@
+{
+  "id": "bf92d4cb-7f20-4128-af57-10d26dbc9899",
+  "sessionState": {
+    "contractType": null,
+    "location": null,
+    "department": null
+  },
+  "pendingField": "contractType",
+  "history": [
+    {
+      "role": "user",
+      "content": "hhh",
+      "ts": 1765807112849
+    },
+    {
+      "role": "assistant",
+      "content": "Got it - I can help route this to the right legal teammate. To get you to the right person, I just need a couple details: 1) Is this Sales, Employment, or NDA? 2) Where are you based? (e.g. Australia / United States)",
+      "ts": 1765807116017
+    }
+  ],
+  "lastActiveAt": 1765807116017
+}

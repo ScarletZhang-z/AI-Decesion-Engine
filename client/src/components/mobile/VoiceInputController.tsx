@@ -19,6 +19,7 @@ export function VoiceInputController({
   const [voiceTranscript, setVoiceTranscript] = useState("");
   const recognitionRef = useRef<any>(null);
   const voiceDraftRef = useRef("");
+  const shouldCaptureRef = useRef(false);
 
   useEffect(() => {
     return () => {
@@ -40,6 +41,7 @@ export function VoiceInputController({
     recognition.lang = "en-US";
 
     recognition.onresult = (event: any) => {
+      if (!shouldCaptureRef.current) return;
       const transcript = Array.from(event.results)
         .map((result: any) => result[0].transcript)
         .join("");
@@ -48,10 +50,12 @@ export function VoiceInputController({
     };
 
     recognition.onend = () => {
+      shouldCaptureRef.current = false;
       setIsListening(false);
     };
 
     recognition.onerror = () => {
+      shouldCaptureRef.current = false;
       setIsListening(false);
     };
 
@@ -68,6 +72,7 @@ export function VoiceInputController({
     }
     if (isListening) return;
 
+    shouldCaptureRef.current = true;
     voiceDraftRef.current = "";
     setVoiceTranscript("");
     setIsListening(true);
@@ -81,6 +86,7 @@ export function VoiceInputController({
 
   const stopVoiceCapture = (sendTranscript: boolean) => {
     const recognition = recognitionRef.current;
+    shouldCaptureRef.current = false;
     if (recognition && isListening) {
       recognition.stop();
     }

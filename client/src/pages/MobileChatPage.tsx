@@ -1,12 +1,10 @@
 import { useState } from "react";
-import "../MobileChatPage.css";
 import { HeroSection } from "../components/mobile/HeroSection";
 import { MobileChatHeader } from "../components/mobile/MobileChatHeader";
 import { ChatTranscript } from "../components/mobile/ChatTranscript";
-import { ChatMessage } from "../components/mobile/types";
 import { VoiceInputController } from "../components/mobile/VoiceInputController";
-
-type Mode = "intro" | "chat";
+import { useMobileChatSession } from "../hooks/useMobileChatSession";
+import "../MobileChatPage.css";
 
 const heroSuggestions = [
   "Ask about visa",
@@ -14,69 +12,58 @@ const heroSuggestions = [
   "Understand my rights",
 ];
 
-const DEFAULT_ASSISTANT_REPLY =
-  "Sure! Are you planning to visit, study, or work in Australia?";
-
-const starterMessages: ChatMessage[] = [
-  {
-    id: "u-1",
-    role: "user",
-    text: "Hi, I want to ask about the visa requirements for Australia.",
-  },
-  {
-    id: "a-1",
-    role: "assistant",
-    text: DEFAULT_ASSISTANT_REPLY,
-  },
-];
-
 export default function MobileChatPage() {
-  const [mode, setMode] = useState<Mode>("intro");
   const [inputValue, setInputValue] = useState("");
-  const [messages, setMessages] = useState<ChatMessage[]>(starterMessages);
+  const {
+    mode,
+    isChatMode,
+    chatMessages,
+    loadingHistory,
+    sending,
+    error,
+    sendMessage,
+    activateChat,
+  } = useMobileChatSession();
 
-  const sendMessage = (text: string) => {
-    const trimmed = text.trim();
-    if (!trimmed) return;
-
-    const userEntry: ChatMessage = {
-      id: `u-${Date.now()}`,
-      role: "user",
-      text: trimmed,
-    };
-    const assistantEntry: ChatMessage = {
-      id: `a-${Date.now() + 1}`,
-      role: "assistant",
-      text: DEFAULT_ASSISTANT_REPLY,
-    };
-
-    setMessages((prev) => [...prev, userEntry, assistantEntry]);
-    setMode("chat");
+  const handleSend = (text: string) => {
+    sendMessage(text);
     setInputValue("");
-  };
-
-  const handleSuggestion = (suggestion: string) => {
-    sendMessage(suggestion);
   };
 
   return (
     <div className="mobile-chat-page">
-      <div className={`mobile-chat-frame ${mode === "chat" ? "is-chat" : ""}`}>
-        <MobileChatHeader />
+      <div className={`mobile-chat-frame ${isChatMode ? "is-chat" : ""}`}>
+        { isChatMode && <MobileChatHeader />}
         {mode === "intro" ? (
           <HeroSection
             suggestions={heroSuggestions}
-            onSelectSuggestion={handleSuggestion}
+            onSelectSuggestion={(text) => {
+              handleSend(text);
+            }}
           />
         ) : (
-          <ChatTranscript messages={messages} />
+          <>
+            {loadingHistory ? (
+              <div className="mobile-chat-placeholder">Loading conversation…</div>
+            ) : (
+              <ChatTranscript messages={chatMessages} showTyping={sending} />
+            )}
+          </>
         )}
-        { mode === "chat" && <FloatingAgent /> }
+        {error ? (
+          <div className="mobile-chat-status error" role="alert">
+            {error}
+          </div>
+        ) : null}
+        {loadingHistory && (
+          <div className="mobile-chat-status">Syncing history…</div>
+        )}
+        {mode === "chat" && <FloatingAgent />}
         <VoiceInputController
           value={inputValue}
           onChange={setInputValue}
-          onSend={sendMessage}
-          onActivateChat={() => setMode("chat")}
+          onSend={handleSend}
+          onActivateChat={activateChat}
         />
       </div>
     </div>
