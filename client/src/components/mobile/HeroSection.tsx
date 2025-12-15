@@ -1,3 +1,5 @@
+import "./HeroSection.css";
+
 type HeroSectionProps = {
   suggestions: string[];
   onSelectSuggestion: (value: string) => void;

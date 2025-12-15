@@ -2,9 +2,9 @@ import { useState } from "react";
 import "../MobileChatPage.css";
 import { HeroSection } from "../components/mobile/HeroSection";
 import { MobileChatHeader } from "../components/mobile/MobileChatHeader";
-import { MobileInputBar } from "../components/mobile/MobileInputBar";
 import { ChatTranscript } from "../components/mobile/ChatTranscript";
 import { ChatMessage } from "../components/mobile/types";
+import { VoiceInputController } from "../components/mobile/VoiceInputController";
 
 type Mode = "intro" | "chat";
 
@@ -32,7 +32,6 @@ const starterMessages: ChatMessage[] = [
 
 export default function MobileChatPage() {
   const [mode, setMode] = useState<Mode>("intro");
-  const [voiceMode, setVoiceMode] = useState(false);
   const [inputValue, setInputValue] = useState("");
   const [messages, setMessages] = useState<ChatMessage[]>(starterMessages);
 
@@ -53,53 +52,31 @@ export default function MobileChatPage() {
 
     setMessages((prev) => [...prev, userEntry, assistantEntry]);
     setMode("chat");
-    setVoiceMode(false);
     setInputValue("");
-  };
-
-  const handleSubmit = () => {
-    sendMessage(inputValue);
   };
 
   const handleSuggestion = (suggestion: string) => {
     sendMessage(suggestion);
   };
 
-  const handleMicClick = () => {
-    if (inputValue.trim()) {
-      sendMessage(inputValue);
-      return;
-    }
-    setVoiceMode(true);
-  };
-
-  const handlePressToSpeak = () => {
-    setMode("chat");
-  };
-
   return (
     <div className="mobile-chat-page">
       <div className={`mobile-chat-frame ${mode === "chat" ? "is-chat" : ""}`}>
-
-          <MobileChatHeader />
-
-          {mode === "intro" ? (
-            <HeroSection
-              suggestions={heroSuggestions}
-              onSelectSuggestion={handleSuggestion}
-            />
-          ) : (
-            <ChatTranscript messages={messages} />
-          )}
-        <FloatingAgent />
-        <MobileInputBar
+        <MobileChatHeader />
+        {mode === "intro" ? (
+          <HeroSection
+            suggestions={heroSuggestions}
+            onSelectSuggestion={handleSuggestion}
+          />
+        ) : (
+          <ChatTranscript messages={messages} />
+        )}
+        { mode === "chat" && <FloatingAgent /> }
+        <VoiceInputController
           value={inputValue}
           onChange={setInputValue}
-          onSubmit={handleSubmit}
-          voiceMode={voiceMode}
-          onMicClick={handleMicClick}
-          onPressToSpeak={handlePressToSpeak}
-          onExitVoiceMode={() => setVoiceMode(false)}
+          onSend={sendMessage}
+          onActivateChat={() => setMode("chat")}
         />
       </div>
     </div>

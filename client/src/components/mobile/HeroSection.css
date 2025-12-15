@@ -1,0 +1,72 @@
+.mobile-hero {
+  flex: 1;
+  background-position: center;
+  background-size: cover;
+  position: relative;
+}
+
+.mobile-hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(9, 11, 24, 0.05) 20%,
+    rgba(9, 11, 24, 0.4) 55%,
+    rgba(9, 11, 24, 0.78) 70%,
+    rgba(9, 11, 24, 0.92) 100%
+  );
+  display: flex;
+  align-items: flex-end;
+}
+
+.mobile-hero-copy {
+  padding: 0 1.25rem 6rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.mobile-hero-copy h1 {
+  color: #fff;
+  font-size: 1.7rem;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 2rem;
+  letter-spacing: 0;
+}
+
+.eyebrow {
+  color: #fff;
+  font-size: 1rem;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 140%;
+}
+
+.hero-suggestions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin-top: 0.2rem;
+}
+
+.pill-button {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.65rem 0.8rem;
+  font-size: 0.8rem;
+  border-radius: 5px;
+  background: rgba(17, 24, 39, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: var(--muted);
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  transition: background 150ms ease, transform 150ms ease;
+}
+
+.pill-button:hover {
+  background: rgba(17, 24, 39, 0.9);
+  transform: translateY(-1px);
+}

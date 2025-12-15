@@ -1,5 +1,6 @@
 import { FormEvent, KeyboardEvent, useEffect, useRef } from "react";
 import { MicIcon, PlusIcon, TypeIcon } from "../Icons";
+import "./MobileInputBar.css";
 
 type MobileInputBarProps = {
   value: string;
@@ -7,7 +8,10 @@ type MobileInputBarProps = {
   onSubmit: () => void;
   voiceMode: boolean;
   onMicClick: () => void;
-  onPressToSpeak: () => void;
+  onPressStart: () => void;
+  onPressEnd: () => void;
+  listening: boolean;
+  transcript: string;
   onExitVoiceMode: () => void;
 };
 
@@ -17,8 +21,11 @@ export function MobileInputBar({
   onSubmit,
   voiceMode,
   onMicClick,
-  onPressToSpeak,
-      onExitVoiceMode,
+  onPressStart,
+  onPressEnd,
+  listening,
+  transcript,
+  onExitVoiceMode,
 }: MobileInputBarProps) {
   const inputRef = useRef<HTMLTextAreaElement | null>(null);
 
@@ -79,9 +86,31 @@ export function MobileInputBar({
             <button
               className="press-to-speak"
               type="button"
-              onClick={onPressToSpeak}
+              onPointerDown={(event) => {
+                event.preventDefault();
+                onPressStart();
+              }}
+              onPointerUp={(event) => {
+                event.preventDefault();
+                onPressEnd();
+              }}
+              onPointerCancel={onPressEnd}
+              onPointerLeave={(event) => {
+                if (event.buttons === 1) {
+                  onPressEnd();
+                }
+              }}
+              aria-pressed={listening}
+              data-state={listening ? "listening" : "idle"}
             >
-              <span>Press and hold to speak</span>
+              <span className="press-text">
+                <span className="press-label">
+                  {listening ? "Listening..." : "Press and hold to speak"}
+                </span>
+                {transcript ? (
+                  <span className="press-transcript">{transcript}</span>
+                ) : null}
+              </span>
             </button>
             <button
               className="icon-button keyboard-button"

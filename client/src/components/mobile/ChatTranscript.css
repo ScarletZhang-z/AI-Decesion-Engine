@@ -1,0 +1,62 @@
+.mobile-chat-body {
+  flex: 1;
+  background: var(--bg);
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  position: relative;
+  padding-bottom: 15rem;
+  overflow: auto;
+}
+
+.mobile-chat-body::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+.mobile-chat-body .bubble {
+  max-width: 90%;
+  padding: 1rem;
+  border-radius: 12px;
+  font-size: 1rem;
+  line-height: 1;
+  box-shadow: 0 16px 28px rgba(0, 0, 0, 0.25);
+}
+
+.mobile-chat-body .bubble.user {
+  align-self: flex-end;
+  background: var(--bubble-user);
+  color: #fdfdff;
+  border-bottom-right-radius: 6px;
+}
+
+.mobile-chat-body .bubble.assistant {
+  align-self: flex-start;
+  background: #ffffff;
+  color: #0f132f;
+  border-bottom-left-radius: 6px;
+}
+
+.typing-dots {
+  display: flex;
+  gap: 0.35rem;
+  align-items: center;
+  margin-top: 0.4rem;
+}
+
+.typing-dots span {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #d9dbff;
+  opacity: 0.6;
+}
+
+.typing-dots span:nth-child(2) {
+  opacity: 0.4;
+}
+
+.typing-dots span:nth-child(3) {
+  opacity: 0.25;
+}

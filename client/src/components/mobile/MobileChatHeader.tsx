@@ -1,4 +1,5 @@
 import { ArrowLeftIcon, MoreIcon, SpeakerIcon } from "../Icons";
+import "./MobileChatHeader.css";
 
 export function MobileChatHeader() {
   return (
@@ -7,14 +8,6 @@ export function MobileChatHeader() {
         <ArrowLeftIcon />
       </button>
       <span className="mobile-title">Legal AI Assistant</span>
-      <div className="header-actions">
-        <button className="icon-button" aria-label="Sound">
-          <SpeakerIcon />
-        </button>
-        <button className="icon-button" aria-label="More">
-          <MoreIcon />
-        </button>
-      </div>
     </header>
   );
 }

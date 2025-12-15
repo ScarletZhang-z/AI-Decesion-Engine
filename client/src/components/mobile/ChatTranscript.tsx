@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { ChatMessage } from "./types";
+import "./ChatTranscript.css";
 
 export function ChatTranscript({ messages }: { messages: ChatMessage[] }) {
   const containerRef = useRef<HTMLElement | null>(null);
@@ -36,4 +37,3 @@ function TypingIndicator() {
     </div>
   );
 }
-
