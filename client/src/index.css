@@ -13,8 +13,24 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-* {
+/* Basic reset */
+*,
+*::before,
+*::after {
   box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+img,
+picture {
+  max-width: 100%;
+  display: block;
+}
+
+ul,
+ol {
+  list-style: none;
 }
 
 a {

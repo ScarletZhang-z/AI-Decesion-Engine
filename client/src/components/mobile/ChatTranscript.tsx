@@ -1,13 +1,20 @@
+import { useEffect, useRef } from "react";
 import { ChatMessage } from "./types";
 
 export function ChatTranscript({ messages }: { messages: ChatMessage[] }) {
+  const containerRef = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    if (!containerRef.current) return;
+    containerRef.current.scrollTop = containerRef.current.scrollHeight;
+  }, [messages]);
+
   return (
-    <section className="mobile-chat-body">
+    <section className="mobile-chat-body" ref={containerRef}>
       {messages.map((message) => (
         <MessageBubble key={message.id} message={message} />
       ))}
       <TypingIndicator />
-      <FloatingAgent />
     </section>
   );
 }
@@ -30,6 +37,3 @@ function TypingIndicator() {
   );
 }
 
-function FloatingAgent() {
-  return <div className="floating-agent" aria-hidden="true" />;
-}

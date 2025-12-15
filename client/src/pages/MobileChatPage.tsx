@@ -91,6 +91,7 @@ export default function MobileChatPage() {
           ) : (
             <ChatTranscript messages={messages} />
           )}
+        <FloatingAgent />
         <MobileInputBar
           value={inputValue}
           onChange={setInputValue}
@@ -103,4 +104,8 @@ export default function MobileChatPage() {
       </div>
     </div>
   );
+}
+
+function FloatingAgent() {
+  return <div className="floating-agent" aria-hidden="true" />;
 }
