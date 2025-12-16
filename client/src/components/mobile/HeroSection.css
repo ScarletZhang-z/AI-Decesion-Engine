@@ -55,7 +55,7 @@
 .pill-button {
   display: inline-flex;
   align-items: center;
-  padding: 0.65rem 0.8rem;
+  padding: 0.5rem 0.8rem;
   font-size: 0.8rem;
   border-radius: 5px;
   background: rgba(17, 24, 39, 0.75);
