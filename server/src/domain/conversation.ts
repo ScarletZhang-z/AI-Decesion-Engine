@@ -61,4 +61,5 @@ export const updateSessionState = (session: SessionState, update: Partial<Sessio
   applyUpdate('contractType');
   applyUpdate('location');
   applyUpdate('department');
+  console.log('session', session)
 };

@@ -5,21 +5,6 @@ export type RuleEvaluationResult =
   | { status: 'missing_fields'; missingFields: Field[] }
   | { status: 'no_match' };
 
-const collectRequiredFields = (rules: Rule[]): Field[] => {
-  const required = new Set<Field>();
-
-  for (const rule of rules) {
-    for (const condition of rule.conditions) {
-      required.add(condition.field);
-    }
-  }
-
-  return Array.from(required);
-};
-
-const findMatchingRule = (rules: Rule[], sessionState: RuleEvaluationSession): Rule | undefined =>
-  rules.find((rule) => rule.conditions.every((condition) => sessionState[condition.field] === condition.value));
-
 export const evaluateRules = ({
   rules,
   sessionState,
@@ -31,13 +16,25 @@ export const evaluateRules = ({
     .filter((rule) => rule.enabled)
     .sort((a, b) => b.priority - a.priority);
 
-  const matchedRule = findMatchingRule(activeRules, sessionState);
-  if (matchedRule) {
-    return { status: 'matched', rule: matchedRule };
+  for (const rule of activeRules) {
+    const missingFieldsForRule = Array.from(new Set(rule.conditions.map((condition) => condition.field))).filter(
+      (field) => sessionState[field] == null,
+    );
+
+    if (missingFieldsForRule.length > 0) {
+      return { status: 'missing_fields', missingFields: missingFieldsForRule };
+    }
+
+    const matches = rule.conditions.every((condition) => sessionState[condition.field] === condition.value);
+    if (matches) {
+      return { status: 'matched', rule };
+    }
   }
 
-  const requiredFields = collectRequiredFields(activeRules);
-  const missingFields = requiredFields.filter((field) => sessionState[field] === null);
+  const requiredFields = Array.from(
+    new Set(activeRules.flatMap((rule) => rule.conditions.map((condition) => condition.field))),
+  );
+  const missingFields = requiredFields.filter((field) => sessionState[field] == null);
 
   if (missingFields.length > 0) {
     return { status: 'missing_fields', missingFields };
