@@ -39,13 +39,26 @@ export const appendHistory = (conversation: Conversation, entry: ConversationHis
 };
 
 export const updateSessionState = (session: SessionState, update: Partial<SessionState>): void => {
-  if (update.contractType !== undefined && update.contractType !== session.contractType && update.contractType !== null) {
-    session.contractType = update.contractType;
-  }
-  if (update.location !== undefined && update.location !== session.location && update.location !== null) {
-    session.location = update.location;
-  }
-  if (update.department !== undefined && update.department !== session.department && update.department !== null) {
-    session.department = update.department.trim();
-  }
+  const applyUpdate = <K extends keyof SessionState>(key: K) => {
+    if (!(key in update)) return;
+
+    const incoming = update[key];
+    if (incoming === session[key]) return;
+
+    if (incoming === null) {
+      session[key] = null;
+      return;
+    }
+
+    if (incoming === undefined) return;
+
+    const normalized = typeof incoming === 'string' ? incoming.trim() : incoming;
+    if (normalized !== session[key]) {
+      session[key] = normalized as SessionState[K];
+    }
+  };
+
+  applyUpdate('contractType');
+  applyUpdate('location');
+  applyUpdate('department');
 };

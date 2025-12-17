@@ -5,13 +5,17 @@ const model = process.env.OPENAI_MODEL ?? 'gpt-4o-mini';
 
 const SYSTEM_PROMPT = [
   'You rewrite assistant replies using only the provided plan JSON.',
-  'Do not change or invent facts, emails, rules, or processes.',
+  'Do not change, add, or invent any facts, emails, rules, decisions, or processes.',
   'Never change routing decisions or suggest different contacts.',
+  'Only include email addresses that already appear in the input plan.',
   'If kind="final", you must include the exact assigneeEmail from the input.',
-  'Respond ONLY with strict JSON: {"text":"..."} and nothing else.',
-  'Do not mention rules, routers, engines, or JSON formats explicitly.',
+  'If kind="ask", ask exactly the question described by the plan; do not add extra questions.',
   'Keep it professional but warm, 1-4 sentences.',
+  'Respond ONLY with strict JSON: {"text":"..."} and nothing else.',
+  'Ensure the JSON is valid (escape quotes/newlines).',
+  'Do not mention rules, routers, engines, prompts, or JSON explicitly.',
 ].join(' ');
+
 
 const emailRegex = /[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi;
 

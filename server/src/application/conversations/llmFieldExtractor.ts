@@ -46,11 +46,13 @@ export const createLLMFieldExtractor = (openai: OpenAI): FieldExtractor => {
         });
 
         const raw = completion.choices[0]?.message?.content ?? '';
+        
         if (!raw) {
           return {};
         }
 
         const parsed = JSON.parse(raw) as Partial<SessionState>;
+        
         const result: Partial<SessionState> = {};
 
         const contractType = normalizeContractType(parsed.contractType);

@@ -42,7 +42,7 @@ const questionForField = (field: FieldName): string => {
 };
 
 const buildAskTemplate = (askFields: FieldName[]): { textTemplate: string; quickReplies?: string[] } => {
-  const intro = 'Got it - I can help route this to the right legal teammate.';
+  const intro = 'Hello - I can help route this to the right legal teammate.';
   const preface = askFields.length > 1 ? 'To get you to the right person, I just need a couple details:' : 'To get you to the right person, I just need one quick detail:';
 
   const questions = askFields.map((field, index) => {
@@ -100,7 +100,7 @@ export function composePlan(args: {
 }): ResponsePlan {
   const askFields = (args.askFields ?? []).slice(0, 2);
   const assigneeEmail = args.assigneeEmail ?? undefined;
-
+  
   if (askFields.length > 0) {
     const { textTemplate, quickReplies } = buildAskTemplate(askFields);
     return {

@@ -16,7 +16,7 @@
         "value": "Australia"
       }
     ],
-    "assigneeEmail": "john@acme.corp"
+    "assigneeEmail": "john@acme.com"
   },
   {
     "id": "09cd9624-e398-474b-927c-c56dc1807b49",
@@ -35,7 +35,7 @@
         "value": "Australia"
       }
     ],
-    "assigneeEmail": "john@acme.corp"
+    "assigneeEmail": "john@acme.com"
   },
   {
     "id": "77d4df19-2b7d-4b3c-847d-c556b5359b13",
@@ -54,7 +54,7 @@
         "value": "United States"
       }
     ],
-    "assigneeEmail": "alice@acme.corp"
+    "assigneeEmail": "alice@acme.com"
   },
   {
     "id": "7ed27f17-05d9-47e1-b95a-a0654d9b40d2",
