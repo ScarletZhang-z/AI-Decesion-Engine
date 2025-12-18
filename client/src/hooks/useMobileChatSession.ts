@@ -30,7 +30,7 @@ export function useMobileChatSession() {
   const updateUrl = useCallback(
     (id: string | null) => {
       const search = id ? `?conversationId=${encodeURIComponent(id)}` : "";
-      navigate({ pathname: "/mobile-chat", search }, { replace: true });
+      navigate({ pathname: "/chat", search }, { replace: true });
     },
     [navigate]
   );

@@ -7,7 +7,7 @@ export function MobileChatHeader() {
 
   const handleBack = () => {
     // Clear any active conversation by returning to the base mobile chat route
-    navigate({ pathname: "/mobile-chat", search: "" }, { replace: true });
+    navigate({ pathname: "/chat", search: "" }, { replace: true });
   };
 
   return (
@@ -15,7 +15,7 @@ export function MobileChatHeader() {
       <button className="icon-button" aria-label="Back" onClick={handleBack}>
         <ArrowLeftIcon />
       </button>
-      <span className="mobile-title">Legal AI Assistant</span>
+      <span className="mobile-title">Acme’s Legal Frontdoor</span>
     </header>
   );
 }

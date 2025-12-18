@@ -1,6 +1,7 @@
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { createRule, deleteRule, fetchRules, updateRule } from "../api";
 import { Condition, Field, Rule, RulePayload } from "../types";
+import "../styles/configure.css";
 
 const fieldLabels: Record<Field, string> = {
   contractType: "Contract Type",

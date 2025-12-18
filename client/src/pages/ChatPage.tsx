@@ -2,7 +2,7 @@ import { useState } from "react";
 import { HeroSection } from "../components/mobile/HeroSection";
 import { MobileChatHeader } from "../components/mobile/MobileChatHeader";
 import { ChatTranscript } from "../components/mobile/ChatTranscript";
-import { VoiceInputController } from "../components/mobile/VoiceInputController";
+import { ChatControls } from "../components/mobile/ChatControls";
 import { useMobileChatSession } from "../hooks/useMobileChatSession";
 import "../ChatPage.css";
 
@@ -58,18 +58,14 @@ export default function ChatPage() {
         {loadingHistory && (
           <div className="mobile-chat-status">Syncing history…</div>
         )}
-        {mode === "chat" && <FloatingAgent />}
-        <VoiceInputController
-          value={inputValue}
-          onChange={setInputValue}
+        <ChatControls
+          mode={mode}
+          inputValue={inputValue}
+          onInputChange={setInputValue}
           onSend={handleSend}
           onActivateChat={activateChat}
         />
       </div>
     </div>
   );
-}
-
-function FloatingAgent() {
-  return <div className="floating-agent" aria-hidden="true" />;
 }

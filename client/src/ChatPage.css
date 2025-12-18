@@ -41,6 +41,13 @@
   background: var(--bg);
 }
 
+.mobile-chat-controls {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
 .icon-button {
   width: 38px;
   height: 38px;
@@ -61,8 +68,8 @@
 }
 
 .floating-agent {
-  position: absolute;
-  bottom: 46px;
+  position: relative;
+  bottom: -26px;
   left: 10px;
   width: 11rem;
   height: 15rem;

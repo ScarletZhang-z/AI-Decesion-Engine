@@ -4,7 +4,6 @@
   background: var(--panel-soft);
   border-top: 1px solid rgba(255, 255, 255, 0.07);
   min-height: 75px;
-  position: absolute;
   bottom: 0;
   width: 100%;
 }
@@ -12,7 +11,7 @@
 .mobile-input-border {
   display: flex;
   border-radius: 1.75rem;
-  border: 1px solid rgba(255, 255, 255, 0.28);
+  border: 2px solid rgba(255, 255, 255, 0.28);
   background:
     linear-gradient(#0b0d1c, #0b0d1c) padding-box,
     linear-gradient(90deg, #6a5cff, #4da3ff, #3cf2e6) border-box;
@@ -85,7 +84,7 @@
 .voice-input-shell {
   flex: 1;
   background: linear-gradient(120deg, #7055ff, #46e3ff);
-  padding: 1px;
+  padding: 2px;
   border-radius: 999px;
   box-shadow: 0 14px 32px rgba(0, 0, 0, 0.32);
 }
