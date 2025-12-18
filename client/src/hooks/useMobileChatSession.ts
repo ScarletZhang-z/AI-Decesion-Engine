@@ -138,7 +138,12 @@ export function useMobileChatSession() {
     [conversationId, sending, updateUrl]
   );
 
-  const activateChat = useCallback(() => setMode("chat"), []);
+  const activateChat = useCallback(() => {
+    const hasConversation = !!searchParams.get("conversationId") || !!conversationId;
+    if (hasConversation) {
+      setMode("chat");
+    }
+  }, [conversationId, searchParams]);
 
   return {
     mode,
