@@ -15,6 +15,15 @@
   border: 1px solid var(--notice-border);
   background: var(--notice-bg);
   color: var(--notice-text);
+  position: fixed;
+  top: 1.25rem;
+  left: 50%;
+  transform: translateX(-50%);
+  min-width: min(480px, calc(100% - 2rem));
+  text-align: center;
+  box-shadow: 0 16px 42px rgba(0, 0, 0, 0.35);
+  z-index: 1000;
+  pointer-events: none;
 }
 
 .notice-success {
