@@ -2,6 +2,12 @@
 
 Rule-based legal triage with optional OpenAI field extraction and copy rewriting. It routes employee requests to the right legal contact and asks for missing context when needed.
 
+## Demo
+
+> ~30 seconds to walk through the full flow: rule configuration → chat-based triage → missing field clarification → successful routing
+
+[![Demo Video](docs/demo-cover.png)](https://youtu.be/HZ48viFuP2Y)
+
 ## Features
 - `/api/chat` supports multi-turn chats with `conversationId`, using `pendingField` to drive follow-up questions (server/src/application/conversations/chatService.ts)
 - `/api/rules` CRUD with validation and JSON persistence (server/src/routes/rules.ts, server/data/rules.json)
