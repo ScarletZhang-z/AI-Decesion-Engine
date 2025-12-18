@@ -1,7 +1,6 @@
 import { NavLink, Navigate, Route, Routes } from "react-router-dom";
 import ChatPage from "./pages/ChatPage";
 import ConfigurePage from "./pages/ConfigurePage";
-import MobileChatPage from "./pages/MobileChatPage";
 import "./App.css";
 
 export default function App() {
@@ -35,7 +34,6 @@ export default function App() {
         <Routes>
           <Route path="/chat" element={<ChatPage />} />
           <Route path="/configure" element={<ConfigurePage />} />
-          <Route path="/mobile-chat" element={<MobileChatPage />} />
           <Route path="*" element={<Navigate to="/chat" replace />} />
         </Routes>
       </main>

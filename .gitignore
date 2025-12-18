@@ -20,3 +20,6 @@ pnpm-debug.log*
 # Build output
 server/dist
 
+# Doc
+server/data/conversations
+

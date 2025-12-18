@@ -11,11 +11,11 @@ export function HeroSection({ suggestions, onSelectSuggestion }: HeroSectionProp
       <div className="mobile-hero-overlay">
         <div className="mobile-hero-copy">
           <h1>
-            Hi, I’m Scarlet,
+            Hi, I’m Scarlet
             <br />
-            your virtual legal AI assistant
+            Acme’s Legal Frontdoor
           </h1>
-          <div className="eyebrow">try to ask me:</div>
+          <div className="eyebrow">Get started with:</div>
           <div className="hero-suggestions">
             {suggestions.map((suggestion) => (
               <button

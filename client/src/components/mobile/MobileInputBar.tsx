@@ -63,7 +63,7 @@ export function MobileInputBar({
             <textarea
               ref={inputRef}
               className="mobile-input-field"
-              placeholder="ASK AI ASSISTANT"
+              placeholder="Describe your legal request…"
               value={value}
               onChange={(event) => onChange(event.target.value)}
               onKeyDown={handleKeyDown}
