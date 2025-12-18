@@ -9,7 +9,7 @@
   --accent: #8f66ff;
   --accent-2: #5c5fff;
   --input-bg: #ece6f0;
-  --input-placeholder: #49454f;
+  --input-placeholder: #ccc;
   --bubble-user: #544fff;
 }
 
@@ -54,7 +54,7 @@
   border-radius: 12px;
   border: none;
   background: transparent;
-  color: var(--text-strong);
+  color: var(--text-primary);
   display: inline-flex;
   align-items: center;
   justify-content: center;
