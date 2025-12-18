@@ -16,28 +16,39 @@ export const evaluateRules = ({
     .filter((rule) => rule.enabled)
     .sort((a, b) => b.priority - a.priority);
 
+  const knownFieldCount = Object.values(sessionState).filter((value) => value != null).length;
+  const missingAcrossCandidates = new Set<Field>();
+
   for (const rule of activeRules) {
+    const conditions = rule.conditions;
+
     const missingFieldsForRule = Array.from(new Set(rule.conditions.map((condition) => condition.field))).filter(
       (field) => sessionState[field] == null,
     );
 
-    if (missingFieldsForRule.length > 0) {
-      return { status: 'missing_fields', missingFields: missingFieldsForRule };
+    const hasMismatch = conditions.some(
+      (condition) => sessionState[condition.field] != null && sessionState[condition.field] !== condition.value,
+    );
+    if (hasMismatch) {
+      continue;
     }
 
-    const matches = rule.conditions.every((condition) => sessionState[condition.field] === condition.value);
+    const matches = conditions.every((condition) => sessionState[condition.field] === condition.value);
     if (matches) {
       return { status: 'matched', rule };
     }
+
+    const matchedKnownCount = conditions.filter(
+      (condition) => sessionState[condition.field] != null && sessionState[condition.field] === condition.value,
+    ).length;
+
+    if (missingFieldsForRule.length > 0 && (matchedKnownCount > 0 || knownFieldCount === 0)) {
+      missingFieldsForRule.forEach((field) => missingAcrossCandidates.add(field));
+    }
   }
 
-  const requiredFields = Array.from(
-    new Set(activeRules.flatMap((rule) => rule.conditions.map((condition) => condition.field))),
-  );
-  const missingFields = requiredFields.filter((field) => sessionState[field] == null);
-
-  if (missingFields.length > 0) {
-    return { status: 'missing_fields', missingFields };
+  if (missingAcrossCandidates.size > 0) {
+    return { status: 'missing_fields', missingFields: Array.from(missingAcrossCandidates) };
   }
 
   return { status: 'no_match' };

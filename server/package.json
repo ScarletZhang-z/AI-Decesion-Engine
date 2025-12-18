@@ -4,6 +4,7 @@
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
+    "test": "ts-node --transpile-only test/run-chat-tests.ts",
     "start": "npm run build && node dist/index.js",
     "dev": "ts-node-dev --respawn --poll --transpile-only --project tsconfig.json src/index.ts"
   },

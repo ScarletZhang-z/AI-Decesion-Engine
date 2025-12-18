@@ -1,7 +1,7 @@
 [
   {
-    "id": "b1a652f4-81a3-4bf8-bdec-45413fbc2228",
-    "name": "AU Sales → John",
+    "id": "a2f65d1e-8c95-4cb5-b8ef-e4c4892d1c90",
+    "name": "AU Sales -> John",
     "enabled": true,
     "priority": 10,
     "conditions": [
@@ -19,26 +19,7 @@
     "assigneeEmail": "john@acme.com"
   },
   {
-    "id": "09cd9624-e398-474b-927c-c56dc1807b49",
-    "name": "AU Sales -> John1",
-    "enabled": true,
-    "priority": 10,
-    "conditions": [
-      {
-        "field": "contractType",
-        "operator": "equals",
-        "value": "Sales"
-      },
-      {
-        "field": "location",
-        "operator": "equals",
-        "value": "Australia"
-      }
-    ],
-    "assigneeEmail": "john@acme.com"
-  },
-  {
-    "id": "77d4df19-2b7d-4b3c-847d-c556b5359b13",
+    "id": "f8bc8838-484f-422d-82f7-7389faeed5ba",
     "name": "US Employment -> Alice",
     "enabled": true,
     "priority": 10,
@@ -57,17 +38,69 @@
     "assigneeEmail": "alice@acme.com"
   },
   {
-    "id": "7ed27f17-05d9-47e1-b95a-a0654d9b40d2",
-    "name": "China Sales -> David",
+    "id": "ac47b4a3-9f3a-4b0c-aa6c-6824e171deea",
+    "name": "UK NDA -> Bob",
     "enabled": true,
-    "priority": 5,
+    "priority": 9,
     "conditions": [
       {
         "field": "contractType",
         "operator": "equals",
-        "value": "Employment"
+        "value": "NDA"
+      },
+      {
+        "field": "location",
+        "operator": "equals",
+        "value": "United Kingdom"
       }
     ],
-    "assigneeEmail": "yuanyuanzhang1210life@gmail.com"
+    "assigneeEmail": "bob@acme.com"
+  },
+  {
+    "id": "ba5bc7c0-e36b-46f7-91ec-3c98f0453a39",
+    "name": "AU Marketing -> Chloe",
+    "enabled": true,
+    "priority": 8,
+    "conditions": [
+      {
+        "field": "department",
+        "operator": "equals",
+        "value": "Marketing"
+      },
+      {
+        "field": "location",
+        "operator": "equals",
+        "value": "Australia"
+      }
+    ],
+    "assigneeEmail": "chloe@acme.com"
+  },
+  {
+    "id": "cb6be853-1a14-49e0-a06b-3d7b18e4f885",
+    "name": "Global HR -> Dana",
+    "enabled": true,
+    "priority": 6,
+    "conditions": [
+      {
+        "field": "department",
+        "operator": "equals",
+        "value": "HR"
+      }
+    ],
+    "assigneeEmail": "dana@acme.com"
+  },
+  {
+    "id": "dd2b2c2b-d31d-44e5-8e8a-6442082bda27",
+    "name": "Global Sales (low) -> Eve",
+    "enabled": true,
+    "priority": 1,
+    "conditions": [
+      {
+        "field": "contractType",
+        "operator": "equals",
+        "value": "Sales"
+      }
+    ],
+    "assigneeEmail": "eve@acme.com"
   }
 ]
