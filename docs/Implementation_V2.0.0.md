@@ -1,4 +1,4 @@
-# Implementation Overview (v1.0.0)
+# Implementation Overview (v2.0.0)
 
 Implementation summary of the current backend and frontend based on the checked-in code.
 

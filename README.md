@@ -24,7 +24,7 @@ rule configuration → chat-based triage → missing field clarification → suc
 
 - [docs/Implementation_V1.0.0.md](docs/Implementation_V1.0.0.md)
 - [docs/Implementation_V1.1.0.md](docs/Implementation_V1.1.0.md)
-- [docs/Implementation_V1.2.0.md](docs/Implementation_V1.2.0.md)
+- [docs/Implementation_V2.0.0.md](docs/Implementation_V2.0.0.md)
 - [docs/TestCases.md](docs/TestCases.md)
 
 
@@ -111,7 +111,7 @@ npm run test
 - More design notes
   - [docs/Implementation_V1.0.0.md](docs/Implementation_V1.0.0.md)
   - [docs/Implementation_V1.1.0.md](docs/Implementation_V1.1.0.md)
-  - [docs/Implementation_V1.2.0.md](docs/Implementation_V1.2.0.md)
+  - [docs/Implementation_V2.0.0.md](docs/Implementation_V2.0.0.md)
 
 ## Future Work
 - Add rule change audit/versioning to trace routing decisions
