@@ -2,13 +2,17 @@
 
 Rule-based legal triage with optional OpenAI field extraction and copy rewriting. It routes employee requests to the right legal contact and asks for missing context when needed.
 
-## Demo
+## Demo Video
 
-> ~30 seconds to walk through the full flow: rule configuration → chat-based triage → missing field clarification → successful routing
+30 seconds to walk through the full flow: 
+
+rule configuration → chat-based triage → missing field clarification → successful routing
 
 [![Demo Video](docs/demo-cover.png)](https://youtu.be/HZ48viFuP2Y)
 
 ## Features
+
+
 - `/api/chat` supports multi-turn chats with `conversationId`, using `pendingField` to drive follow-up questions (server/src/application/conversations/chatService.ts)
 - `/api/rules` CRUD with validation and JSON persistence (server/src/routes/rules.ts, server/data/rules.json)
 - Routing honors `priority`, `enabled`, and returns `matched` / `missing_fields` / `no_match` (server/src/domain/ruleEngine.ts)
@@ -16,30 +20,32 @@ Rule-based legal triage with optional OpenAI field extraction and copy rewriting
 - Mobile-oriented chat UI and rules console (client/src/pages/ChatPage.tsx, ConfigurePage.tsx)
 - Integration test script covers routing and conversation restore (server/test/run-chat-tests.ts)
 
-More design notes:
-- docs/Implementation_V1.0.0.md
-- docs/Implementation_V1.1.0.md
-- docs/Implementation_V1.2.0.md
-- docs/TestCases.md
+## More design notes:
 
----
+- [docs/Implementation_V1.0.0.md](docs/Implementation_V1.0.0.md)
+- [docs/Implementation_V1.1.0.md](docs/Implementation_V1.1.0.md)
+- [docs/Implementation_V1.2.0.md](docs/Implementation_V1.2.0.md)
+- [docs/TestCases.md](docs/TestCases.md)
+
+
+
 
 ## Quickstart
 
-> Node version is not declared in the repo; use Node 18+/20+ (verify locally).
+Node version 22+
 
 1) Backend
 ```bash
 cd server
 npm install
-npm run dev          # defaults to PORT=5000; override via .env
+npm run dev  # 
 ```
 
 2) Frontend (new terminal)
 ```bash
 cd client
 npm install
-npm run dev          # defaults to http://localhost:5173; calls VITE_API_BASE_URL or falls back to http://localhost:5000
+npm run dev
 ```
 
 URLs:
@@ -61,16 +67,16 @@ Production/build:
 - `VITE_API_BASE_URL`: optional, frontend API base; default `http://localhost:5000` (client/src/api.ts, client/vite.config.ts loads root .env via `envDir: '..'`)
 - Test-related: `API_BASE_URL` (default `http://localhost:8999`), `RUN_LLM` (=1 enables OpenAI scenarios), optional `OPENAI_API_KEY` (server/test/run-chat-tests.ts)
 
----
+
 
 ## Data & Persistence
 - Rules: `server/data/rules.json`, loaded at startup and persisted on CRUD (routes/rules.ts)
 - Field aliases: `server/data/fieldAliases.json` for contractType/location/department normalization (application/normalizers.ts)
 - Conversations: `server/data/conversations/`, each reply writes `<conversationId>.json`; in-memory cache evicts after 30 minutes idle and flushes to disk; sweep runs every 60s (conversationRepository.ts)
 
----
 
-## API (minimal contract)
+
+## API
 - `POST /api/chat`
   - Body: `{ userMessage: string, conversationId?: string }` (non-empty userMessage required)
   - Response: `{ conversationId: string, response: string, quickReplies?: string[] }`
@@ -83,24 +89,29 @@ Production/build:
 ---
 
 ## Tests
+
+- [docs/TestCases.md](docs/TestCases.md)
+
+
+
 - Requirement: backend running; default expects `API_BASE_URL=http://localhost:8999`
 - Run:
 ```bash
-cd server
-API_BASE_URL=http://localhost:8999 npm test   # if you change the backend port, start it with the same PORT first (e.g., PORT=8999 npm run dev)
-# Optional: RUN_LLM=1 to enable OpenAI-dependent scenarios (needs OPENAI_API_KEY)
+npm run test
 ```
 - Coverage: routing decisions, missing-field prompts, conversation restore, rule disable/fallback (server/test/run-chat-tests.ts, docs/TestCases.md)
 
 ---
 
-## Design Notes (code-backed)
+## Design Notes
 - `pendingField`: tracks the field to ask next; the next user message is parsed for that field first (chatService.ts, fieldParsers.ts)
 - `priority`/`enabled`: rules are filtered by `enabled`, sorted by `priority` desc, and evaluated in that order (ruleEngine.ts)
 - `missing_fields`: aggregates missing fields from partial matches; `selectNextField` chooses by distinctness and default order (contractType→location→department) (ruleEngine.ts, nextQuestionSelector.ts)
 - Replies: `composePlan` builds templates; `rewriteWithLLM` only runs with an OpenAI key and must not change routing; without a key, templates and quickReplies are returned (responseComposer.ts, llmCopywriter.ts)
-
----
+- More design notes
+  - [docs/Implementation_V1.0.0.md](docs/Implementation_V1.0.0.md)
+  - [docs/Implementation_V1.1.0.md](docs/Implementation_V1.1.0.md)
+  - [docs/Implementation_V1.2.0.md](docs/Implementation_V1.2.0.md)
 
 ## Future Work
 - Add rule change audit/versioning to trace routing decisions
