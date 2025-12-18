@@ -1,7 +1,7 @@
 [
   {
     "id": "a2f65d1e-8c95-4cb5-b8ef-e4c4892d1c90",
-    "name": "AU Sales -> John",
+    "name": "AU Sales -> John2",
     "enabled": true,
     "priority": 11,
     "conditions": [
@@ -88,33 +88,5 @@
       }
     ],
     "assigneeEmail": "dana@acme.com"
-  },
-  {
-    "id": "dd2b2c2b-d31d-44e5-8e8a-6442082bda27",
-    "name": "Global Sales (low) -> Eve2",
-    "enabled": true,
-    "priority": 1,
-    "conditions": [
-      {
-        "field": "contractType",
-        "operator": "equals",
-        "value": "Sales"
-      }
-    ],
-    "assigneeEmail": "eve@acme.com"
-  },
-  {
-    "id": "52390424-de54-4ef6-ac5c-b27dc2c9aa39",
-    "name": "333",
-    "enabled": true,
-    "priority": 1,
-    "conditions": [
-      {
-        "field": "contractType",
-        "operator": "equals",
-        "value": "Sales"
-      }
-    ],
-    "assigneeEmail": "yuanyuanzhang1210life@gmail.com"
   }
 ]

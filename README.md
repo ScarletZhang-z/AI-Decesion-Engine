@@ -1,118 +1,102 @@
-# AI Takehome Assessment 
+# Legal Triage Router (AI Challenge)
 
-## Background
-The in-house legal team at Acme Corp recieves are a large volume of diverse internal legal-related requests from within a company.
+Rule-based legal triage with optional OpenAI field extraction and copy rewriting. It routes employee requests to the right legal contact and asks for missing context when needed.
 
-:notebook: The legal request could be:
+## Features
+- `/api/chat` supports multi-turn chats with `conversationId`, using `pendingField` to drive follow-up questions (server/src/application/conversations/chatService.ts)
+- `/api/rules` CRUD with validation and JSON persistence (server/src/routes/rules.ts, server/data/rules.json)
+- Routing honors `priority`, `enabled`, and returns `matched` / `missing_fields` / `no_match` (server/src/domain/ruleEngine.ts)
+- OpenAI optional: field extraction (llmFieldExtractor.ts) and reply rewriting (llmCopywriter.ts); without a key it falls back to templates and continues the flow
+- Mobile-oriented chat UI and rules console (client/src/pages/ChatPage.tsx, ConfigurePage.tsx)
+- Integration test script covers routing and conversation restore (server/test/run-chat-tests.ts)
+
+More design notes:
+- docs/Implementation_V1.0.0.md
+- docs/Implementation_V1.1.0.md
+- docs/Implementation_V1.2.0.md
+- docs/TestCases.md
+
+---
+
+## Quickstart
+
+> Node version is not declared in the repo; use Node 18+/20+ (verify locally).
+
+1) Backend
+```bash
+cd server
+npm install
+npm run dev          # defaults to PORT=5000; override via .env
 ```
-Head of Engineering:
-  - Hey, we have a new engineer joining, I have an employment contract that I need approval for.
 
-Senior Marketer:
-  - We have a marketing campaign ready to launch, I need someone from legal help review it.
-
-A new employee:
-  - I am new here, is it a breach of contract if I talk to a competitor?
+2) Frontend (new terminal)
+```bash
+cd client
+npm install
+npm run dev          # defaults to http://localhost:5173; calls VITE_API_BASE_URL or falls back to http://localhost:5000
 ```
-These requests are triaged to a member of the legal team who is responsible for that kind of request e.g sales contracts, employment matters, travel expenses. Occassionally who is responsible for what changes as members are reshuffled and people join and leave the team.
 
-The way requests are triaged can also depend on different properties of the request.  
-For example a sales contract review can be assigned to:
-* ***John@acme.corp*** if the requestor is from `Australia`, but assigned to
-* ***Jane@acme.corp*** if the requestor is from the `United states`.
+URLs:
+- API: http://localhost:5000 by default (`/health` for liveness)
+- Frontend: http://localhost:5173
 
-Combinations of these conditions can be used to triage a request e.g "Location is Australia and Department is Finance".
+Production/build:
+- Backend: `npm run start` (build then run dist/index.js)
+- Frontend: `npm run build`, `npm run preview`
 
-Traditionally this has all been facilitated through email and members of the legal team at Acme often find themselves having to manually triage requests to the correct team member. As you can imagine this is a painstaking process...
+---
 
+## Environment Variables (.env at repo root)
+- `PORT`: backend port, default 5000 (server/src/index.ts, server/src/env.ts)
+- `OPENAI_API_KEY`: optional. If missing, startup warns; field extraction returns empty; copy rewriting is skipped; templates still work (index.ts, llmFieldExtractor.ts, llmCopywriter.ts)
+- `OPENAI_BASE_URL`: optional, passed to OpenAI SDK (index.ts)
+- `OPENAI_MODEL`: optional, default `gpt-4o-mini` (llmFieldExtractor.ts, llmCopywriter.ts)
+- `FALLBACK_EMAIL`: optional, default `legal@acme.corp`, used when no rule matches (chatService.ts)
+- `VITE_API_BASE_URL`: optional, frontend API base; default `http://localhost:5000` (client/src/api.ts, client/vite.config.ts loads root .env via `envDir: '..'`)
+- Test-related: `API_BASE_URL` (default `http://localhost:8999`), `RUN_LLM` (=1 enables OpenAI scenarios), optional `OPENAI_API_KEY` (server/test/run-chat-tests.ts)
 
-## Scope
-> :gem: **Use of AI to help you code and brainstorm is encouraged!**
+---
 
-Build an AI Agent proof of concept that will act as a 'frontdoor' for employees at Acme to send legal requests to. The way this AI Agent triages various types of requests must be configurable. 
+## Data & Persistence
+- Rules: `server/data/rules.json`, loaded at startup and persisted on CRUD (routes/rules.ts)
+- Field aliases: `server/data/fieldAliases.json` for contractType/location/department normalization (application/normalizers.ts)
+- Conversations: `server/data/conversations/`, each reply writes `<conversationId>.json`; in-memory cache evicts after 30 minutes idle and flushes to disk; sweep runs every 60s (conversationRepository.ts)
 
-Here are some examples of how the AI Agent might behave:
+---
+
+## API (minimal contract)
+- `POST /api/chat`
+  - Body: `{ userMessage: string, conversationId?: string }` (non-empty userMessage required)
+  - Response: `{ conversationId: string, response: string, quickReplies?: string[] }`
+  - Behavior: on match returns assigneeEmail; on missing fields asks up to 2 questions with quickReplies; no match uses `FALLBACK_EMAIL`
+- `GET /api/rules` / `POST /api/rules` / `PUT /api/rules/:id` / `DELETE /api/rules/:id`
+  - Fields limited to `contractType` | `location` | `department`; operator fixed to `"equals"`; `assigneeEmail` must be a valid email (routes/rules.ts)
+  - POST/PUT persist immediately to `server/data/rules.json`
+- `GET /api/conversations/:id`: returns `{ conversationId, history: [{ role: 'user'|'assistant', content: string, ts: number }, ...] }`; 404 if not found (routes/conversations.ts)
+
+---
+
+## Tests
+- Requirement: backend running; default expects `API_BASE_URL=http://localhost:8999`
+- Run:
+```bash
+cd server
+API_BASE_URL=http://localhost:8999 npm test   # if you change the backend port, start it with the same PORT first (e.g., PORT=8999 npm run dev)
+# Optional: RUN_LLM=1 to enable OpenAI-dependent scenarios (needs OPENAI_API_KEY)
 ```
-Requestor: "I have a Sales contract that I reviewed."
-AI Agent: "Where are you based?"
-Requestor: "Australia"
-AI Agent: "For Sales contract reviews in Australia email xyz@acme.corp" 
-```
-```
-Requestor: "I have a contract that I need approval for."
-AI Agent: "Is this a Sales, Employment, or NDA contract?"
-Requestor: "It relates to an offer of employment."
-AI Agent: "Where are you based?"
-Requestor: "United States"
-AI Agent: "Please email abc@acme.corp for approval of your contract."
-```
-We have provided you a lightweight chat app scaffold, feel free to make as many changes to it as you like. Also feel free to to install any additional package or any use any third party providers/APIs. The only constraints are:
-- Keep the stack the same i.e Typescript, React frontend, NodeJS express backend. 
-- The webapp should have the following routes: 
-  - `localhost:5173/chat` the chat interface, where requestor's enter their request. 
-  - `localhost:5173/configure` where admins configure how requests are triaged and who they triaged to.  
+- Coverage: routing decisions, missing-field prompts, conversation restore, rule disable/fallback (server/test/run-chat-tests.ts, docs/TestCases.md)
 
-## Out of Scope
-We only want to solve the core problem at hand. Examples of things that are out of scope: 
-- Authentication. 
-- Deployment. 
-- Unit tests. 
+---
 
+## Design Notes (code-backed)
+- `pendingField`: tracks the field to ask next; the next user message is parsed for that field first (chatService.ts, fieldParsers.ts)
+- `priority`/`enabled`: rules are filtered by `enabled`, sorted by `priority` desc, and evaluated in that order (ruleEngine.ts)
+- `missing_fields`: aggregates missing fields from partial matches; `selectNextField` chooses by distinctness and default order (contractType→location→department) (ruleEngine.ts, nextQuestionSelector.ts)
+- Replies: `composePlan` builds templates; `rewriteWithLLM` only runs with an OpenAI key and must not change routing; without a key, templates and quickReplies are returned (responseComposer.ts, llmCopywriter.ts)
 
-## What we are looking for
-This assessment is intentionally open ended. We're looking for the following:
-- Strong software engineering fundementals - code quality and system design.
-- Experience in building AI applications. 'LLM literacy'.
-- Product and Design sense i.e the ability to make sensible UX choices. 
+---
 
-
-## Project scaffold Structure
-
-> :bulb: The current scaffold utilizes OpenAI's GPT-OSS120b model from groq (A fast inference API with limited free access) Click [here](https://groq.com/) to register an account.
-
-A two-part web application consisting of a TypeScript React frontend and a TypeScript Express backend. The chat interface streams responses from OpenAI's model, while a placeholder configuration page is ready for future settings.
-
-
-- `server` — Express API that proxies streaming requests to OpenAI.
-- `client` — React (Vite) single-page application with `/chat` and `/configure` routes.
-
-## Setup
-
-1. **Install dependencies**
-   ```bash
-   cd server && npm install
-   cd ../client && npm install
-   ```
-
-2. **Environment variables**
-   - Copy `.env.example` to `.env` at the project root.
-   - Populate the following values:
-     - `OPENAI_BASE_URL`: The base url for the openai SDK (Currently points to groq)
-     - `OPENAI_API_KEY`: your OpenAI API key.
-     - `PORT`: port for the Express server (defaults to `8999`).
-     - `VITE_API_BASE_URL`: frontend URL used to reach the backend (defaults to `http://localhost:8999`).
-
-3. **Run the backend**
-   ```bash
-   cd server
-   npm run dev
-   ```
-
-   For a production build, run `npm start` to compile the TypeScript sources before launching the server.
-
-4. **Run the frontend**
-   ```bash
-   cd client
-   npm run dev
-   ```
-
-   The React app will be available at the URL Vite prints (typically `http://localhost:5173`).
-
-
-## Lastly
-We can't wait to see what you come up with! For any questions feel free to reach out to vince.mu@checkbox.ai
-
-## Docs
-- Implementation overview: [docs/Implementation-v1.0.0.md](docs/Implementation-v1.0.0.md)
-- Implementation overview: [docs/Implementation-v1.1.0.md](docs/Implementation-v1.1.0.md)
- 
+## Future Work
+- Add rule change audit/versioning to trace routing decisions
+- Add cleanup/archival strategy for `server/data/conversations` to prevent unbounded growth
+- Add rule import/export and easier environment switching (local/test) in the frontend
