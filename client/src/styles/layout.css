@@ -4,9 +4,13 @@
   flex-direction: column;
   background: radial-gradient(circle at top, #fff, var(--bg));
   color: var(--text-strong);
+  justify-content: center;
+  align-items: center;
 }
 
 .app-nav {
+  position: absolute;
+  right: 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -24,6 +28,7 @@
 .nav-links {
   display: flex;
   gap: 1rem;
+  flex-direction: column;
 }
 
 .nav-links a {
@@ -47,7 +52,6 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  padding: 2rem;
 }
 
 @media (max-width: 768px) {

@@ -7,13 +7,12 @@ export default function App() {
   return (
     <div className="app-shell">
       <nav className="app-nav">
-        <h2>Legal frontdoor</h2>
         <div className="nav-links">
           <NavLink
             to="/chat"
             className={({ isActive }) => (isActive ? "active" : "")}
           >
-            Chat
+            Mobile Chat
           </NavLink>
           <NavLink
             to="/configure"
