@@ -88,5 +88,43 @@
       }
     ],
     "assigneeEmail": "dana@acme.com"
+  },
+  {
+    "id": "b04c90d5-aac5-4e86-a4ac-9303e15deaa3",
+    "name": "aaa test",
+    "enabled": true,
+    "priority": 10,
+    "conditions": [
+      {
+        "field": "contractType",
+        "operator": "equals",
+        "value": "NDA"
+      },
+      {
+        "field": "location",
+        "operator": "equals",
+        "value": "Australia"
+      },
+      {
+        "field": "department",
+        "operator": "equals",
+        "value": "aa"
+      }
+    ],
+    "assigneeEmail": "dddd@qq.com"
+  },
+  {
+    "id": "93a2294e-b467-44cb-9f65-7fb20a64ed25",
+    "name": "AAA",
+    "enabled": true,
+    "priority": 11,
+    "conditions": [
+      {
+        "field": "contractType",
+        "operator": "equals",
+        "value": "Sales"
+      }
+    ],
+    "assigneeEmail": "280998717@qq.com"
   }
 ]

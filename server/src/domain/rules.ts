@@ -17,3 +17,9 @@ export type Rule = {
 };
 
 export type RuleEvaluationSession = Record<Field, string | null>;
+
+export type RuleEvaluation = {
+  status: 'matched' | 'missing_fields' | 'no_match';
+  rule?: Rule;
+  missingFields?: Field[];
+}

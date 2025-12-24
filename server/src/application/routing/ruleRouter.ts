@@ -1,4 +1,4 @@
-import type { RuleEvaluationSession, Rule, Field } from '../../domain/rules';
+import type { RuleEvaluationSession, Rule, Field, RuleEvaluation } from '../../domain/rules';
 import { evaluateRules } from '../../domain/ruleEngine';
 
 export type RuleRepository = {
@@ -35,6 +35,13 @@ const buildDebugInfo = (rules: Rule[], reason?: string): RoutingDebugInfo => ({
   reason,
 });
 
+const debugReasonMap: Record<string, (evaluation: RuleEvaluation) => string> = {
+  matched: (evaluation: RuleEvaluation) => `matched rule ${evaluation?.rule?.id}`,
+  missing_fields: (evaluation: RuleEvaluation) => `missing fields: ${evaluation?.missingFields?.join(',')}`,
+  no_match: () => 'no matching rule',
+};
+
+
 export const createRuleRouter = ({
   repository,
   engine = evaluateRules,
@@ -58,14 +65,7 @@ export const createRuleRouter = ({
     }
 
     const evaluation = engine({ rules, sessionState });
-    const debugReason =
-      evaluation.status === 'matched'
-        ? `matched rule ${evaluation.rule.id}`
-        : evaluation.status === 'missing_fields'
-          ? `missing fields: ${evaluation.missingFields.join(',')}`
-          : evaluation.status === 'no_match'
-            ? 'no matching rule'
-            : '';
+    const debugReason = debugReasonMap[evaluation.status]?.(evaluation) ?? '';
     const debug = includeDebug ? buildDebugInfo(rules, debugReason) : undefined;
 
     if (evaluation.status === 'matched') {

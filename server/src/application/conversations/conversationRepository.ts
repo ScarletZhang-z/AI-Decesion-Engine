@@ -74,6 +74,9 @@ const parseConversation = (data: unknown): Conversation | null => {
 };
 
 const ensureConversationsDir = async () => {
+  // Create the conversations directory if it doesn't exist.
+  // Recursive mode avoids errors when the directory already exists
+  // and creates parent directories as needed.
   await fs.mkdir(conversationsDir, { recursive: true });
 };
 
@@ -123,6 +126,10 @@ export const createConversationRepository = (): ConversationRepository => {
     return loaded;
   };
 
+
+
+  // Periodically remove expired conversations from memory.
+  // Persist the conversation to disk before eviction to avoid data loss.
   const sweepExpired = async () => {
     const now = Date.now();
 

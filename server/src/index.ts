@@ -27,10 +27,14 @@ const ruleRepository: RuleRepository = {
   getAll: () => getRules(),
 };
 
+
 const ruleRouter = createRuleRouter({ repository: ruleRepository });
 
 const conversationRepository = createConversationRepository();
 const fieldExtractor = createLLMFieldExtractor(openai);
+
+
+
 const chatService = createChatService({ conversationRepository, fieldExtractor, ruleRouter });
 const conversationsRouter = createConversationsRouter({ repository: conversationRepository });
 
@@ -48,7 +52,11 @@ app.get('/health', (_req: Request, res: Response) => {
 });
 
 app.post('/api/chat', async (req: Request, res: Response) => {
+  // I usually separate HTTP and core logic by using small translator functions
+  //DTOs describe the raw HTTP shape
+  // while toCommand and toResponseDTO act as translators
   const dto = (req.body ?? {}) as ChatRequestDTO;
+  // toChatCommand cleans and converts that raw request into something the app logic can safely use.
   const command = toChatCommand(dto);
 
   if (typeof command.userMessage !== 'string' || !command.userMessage.trim()) {
@@ -57,6 +65,7 @@ app.post('/api/chat', async (req: Request, res: Response) => {
   }
 
   const result = await chatService.handle(command);
+  // toChatResponseDTO does the opposite — it formats the business result back into a JSON response for the client.
   res.json(toChatResponseDTO(result));
 });
 
