@@ -1,151 +1,173 @@
 [
   {
-    "id": "a2f65d1e-8c95-4cb5-b8ef-e4c4892d1c90",
-    "name": "AU Sales -> John2",
+    "id": "R950_Sales_GlobalTop",
+    "name": "Priority wins over specificity: Sales only, top priority",
     "enabled": true,
-    "priority": 11,
-    "conditions": [
-      {
-        "field": "contractType",
-        "op": "eq",
-        "value": "Sales"
-      },
-      {
-        "field": "location",
-        "op": "eq",
-        "value": "Australia"
-      }
-    ],
-    "action": {
-      "type": "assign_email",
-      "value": "john@acme.com"
-    }
+    "priority": 950,
+    "conditions": [{ "field": "contractType", "op": "eq", "value": "Sales" }],
+    "action": { "type": "assign_email", "value": "sales-top@company.test" }
   },
   {
-    "id": "f8bc8838-484f-422d-82f7-7389faeed5ba",
-    "name": "US Employment -> Alice",
+    "id": "R900_Sales_AU_Engineer",
+    "name": "Sales + Australia + Engineer (high specificity, same priority as R900_Sales_AU)",
     "enabled": true,
-    "priority": 10,
+    "priority": 900,
     "conditions": [
-      {
-        "field": "contractType",
-        "op": "eq",
-        "value": "Employment"
-      },
-      {
-        "field": "location",
-        "op": "eq",
-        "value": "United States"
-      }
+      { "field": "contractType", "op": "eq", "value": "Sales" },
+      { "field": "location", "op": "eq", "value": "Australia" },
+      { "field": "department", "op": "eq", "value": "Engineer" }
     ],
-    "action": {
-      "type": "assign_email",
-      "value": "alice@acme.com"
-    }
+    "action": { "type": "assign_email", "value": "sales-au-eng@company.test" }
   },
   {
-    "id": "ac47b4a3-9f3a-4b0c-aa6c-6824e171deea",
-    "name": "UK NDA -> Bob",
+    "id": "R900_Sales_AU",
+    "name": "Sales + Australia (lower specificity, same priority as R900_Sales_AU_Engineer)",
     "enabled": true,
-    "priority": 9,
+    "priority": 900,
     "conditions": [
-      {
-        "field": "contractType",
-        "op": "eq",
-        "value": "NDA"
-      },
-      {
-        "field": "location",
-        "op": "eq",
-        "value": "United Kingdom"
-      }
+      { "field": "contractType", "op": "eq", "value": "Sales" },
+      { "field": "location", "op": "eq", "value": "Australia" }
     ],
-    "action": {
-      "type": "assign_email",
-      "value": "bob@acme.com"
-    }
+    "action": { "type": "assign_email", "value": "sales-au@company.test" }
   },
   {
-    "id": "ba5bc7c0-e36b-46f7-91ec-3c98f0453a39",
-    "name": "AU Marketing -> Chloe",
+    "id": "R850_Sales_Engineer",
+    "name": "Sales + Engineer (eligible vs satisfied interplay)",
     "enabled": true,
-    "priority": 8,
+    "priority": 850,
     "conditions": [
-      {
-        "field": "department",
-        "op": "eq",
-        "value": "Marketing"
-      },
-      {
-        "field": "location",
-        "op": "eq",
-        "value": "Australia"
-      }
+      { "field": "contractType", "op": "eq", "value": "Sales" },
+      { "field": "department", "op": "eq", "value": "Engineer" }
     ],
-    "action": {
-      "type": "assign_email",
-      "value": "chloe@acme.com"
-    }
+    "action": { "type": "assign_email", "value": "sales-eng@company.test" }
   },
   {
-    "id": "cb6be853-1a14-49e0-a06b-3d7b18e4f885",
-    "name": "Global HR -> Dana",
+    "id": "R820_NDA_US_HR",
+    "name": "NDA + United States + HR (more specific than NDA only)",
     "enabled": true,
-    "priority": 6,
+    "priority": 820,
     "conditions": [
-      {
-        "field": "department",
-        "op": "eq",
-        "value": "HR"
-      }
+      { "field": "contractType", "op": "eq", "value": "NDA" },
+      { "field": "location", "op": "eq", "value": "United States" },
+      { "field": "department", "op": "eq", "value": "HR" }
     ],
-    "action": {
-      "type": "assign_email",
-      "value": "dana@acme.com"
-    }
+    "action": { "type": "assign_email", "value": "nda-us-hr@company.test" }
   },
   {
-    "id": "b04c90d5-aac5-4e86-a4ac-9303e15deaa3",
-    "name": "aaa test",
+    "id": "R800_NDA",
+    "name": "NDA only",
     "enabled": true,
-    "priority": 10,
-    "conditions": [
-      {
-        "field": "contractType",
-        "op": "eq",
-        "value": "NDA"
-      },
-      {
-        "field": "location",
-        "op": "eq",
-        "value": "Australia"
-      },
-      {
-        "field": "department",
-        "op": "eq",
-        "value": "aa"
-      }
-    ],
-    "action": {
-      "type": "assign_email",
-      "value": "dddd@qq.com"
-    }
+    "priority": 800,
+    "conditions": [{ "field": "contractType", "op": "eq", "value": "NDA" }],
+    "action": { "type": "assign_email", "value": "nda@company.test" }
   },
   {
-    "id": "93a2294e-b467-44cb-9f65-7fb20a64ed25",
-    "name": "AAA",
+    "id": "R780_Employment_SG_HR",
+    "name": "Employment + Singapore + HR (specific)",
     "enabled": true,
-    "priority": 11,
+    "priority": 780,
     "conditions": [
-      {
-        "field": "contractType",
-        "op": "eq",
-        "value": "Sales"
-      }
+      { "field": "contractType", "op": "eq", "value": "Employment" },
+      { "field": "location", "op": "eq", "value": "Singapore" },
+      { "field": "department", "op": "eq", "value": "HR" }
     ],
-    "action": {
-      "type": "assign_email",
-      "value": "280998717@qq.com"
-    }
+    "action": { "type": "assign_email", "value": "employment-sg-hr@company.test" }
+  },
+  {
+    "id": "R770_Employment_SG",
+    "name": "Employment + Singapore (same path, lower specificity)",
+    "enabled": true,
+    "priority": 770,
+    "conditions": [
+      { "field": "contractType", "op": "eq", "value": "Employment" },
+      { "field": "location", "op": "eq", "value": "Singapore" }
+    ],
+    "action": { "type": "assign_email", "value": "employment-sg@company.test" }
+  },
+  {
+    "id": "R760_Employment_HR",
+    "name": "Employment + HR (competes with location-based rule)",
+    "enabled": true,
+    "priority": 760,
+    "conditions": [
+      { "field": "contractType", "op": "eq", "value": "Employment" },
+      { "field": "department", "op": "eq", "value": "HR" }
+    ],
+    "action": { "type": "assign_email", "value": "employment-hr@company.test" }
+  },
+  {
+    "id": "R740_Employment",
+    "name": "Employment only",
+    "enabled": true,
+    "priority": 740,
+    "conditions": [{ "field": "contractType", "op": "eq", "value": "Employment" }],
+    "action": { "type": "assign_email", "value": "employment@company.test" }
+  },
+  {
+    "id": "R630_Employment_Brazil",
+    "name": "Eligible tie: Employment + Brazil (priority beats equal specificity)",
+    "enabled": true,
+    "priority": 630,
+    "conditions": [
+      { "field": "contractType", "op": "eq", "value": "Employment" },
+      { "field": "location", "op": "eq", "value": "Brazil" }
+    ],
+    "action": { "type": "assign_email", "value": "employment-brazil@company.test" }
+  },
+  {
+    "id": "R620_Employment_Finance",
+    "name": "Eligible tie: Employment + Finance (lower priority than Brazil rule)",
+    "enabled": true,
+    "priority": 620,
+    "conditions": [
+      { "field": "contractType", "op": "eq", "value": "Employment" },
+      { "field": "department", "op": "eq", "value": "Finance" }
+    ],
+    "action": { "type": "assign_email", "value": "employment-finance@company.test" }
+  },
+  {
+    "id": "R610_Employment_Brazil_Finance",
+    "name": "MatchedKnownCount beats priority: Employment + Brazil + Finance",
+    "enabled": true,
+    "priority": 610,
+    "conditions": [
+      { "field": "contractType", "op": "eq", "value": "Employment" },
+      { "field": "location", "op": "eq", "value": "Brazil" },
+      { "field": "department", "op": "eq", "value": "Finance" }
+    ],
+    "action": { "type": "assign_email", "value": "employment-brazil-finance@company.test" }
+  },
+  {
+    "id": "R510_Tie_ContractType_Ops",
+    "name": "Next-field tie test: Partnership + Ops",
+    "enabled": true,
+    "priority": 510,
+    "conditions": [
+      { "field": "contractType", "op": "eq", "value": "Partnership" },
+      { "field": "department", "op": "eq", "value": "Ops" }
+    ],
+    "action": { "type": "assign_email", "value": "tie-contract@company.test" }
+  },
+  {
+    "id": "R511_Tie_Location_Ops",
+    "name": "Next-field tie test: Germany + Ops (same priority/specificity as tie-contract)",
+    "enabled": true,
+    "priority": 510,
+    "conditions": [
+      { "field": "location", "op": "eq", "value": "Germany" },
+      { "field": "department", "op": "eq", "value": "Ops" }
+    ],
+    "action": { "type": "assign_email", "value": "tie-location@company.test" }
+  },
+  {
+    "id": "R999_Disabled_Sales_Engineer",
+    "name": "Disabled rule: should never be picked",
+    "enabled": false,
+    "priority": 999,
+    "conditions": [
+      { "field": "contractType", "op": "eq", "value": "Sales" },
+      { "field": "department", "op": "eq", "value": "Engineer" }
+    ],
+    "action": { "type": "assign_email", "value": "disabled@company.test" }
   }
 ]

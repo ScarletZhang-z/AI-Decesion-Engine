@@ -1,6 +1,7 @@
 # Node modules
 client/node_modules
 server/node_modules
+checkbox-routing-tests/node_modules
 
 # Environment files
 .env
@@ -22,4 +23,7 @@ server/dist
 
 # Doc
 server/data/conversations
+
+#Test output
+checkbox-routing-tests
 

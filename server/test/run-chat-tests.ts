@@ -2,14 +2,14 @@
 /* eslint-disable no-console */
 
 /**
- * Automatically runs the main test scenarios for chat routing.
- * Depends on a running backend (default: http://localhost:8999). Does not depend on the frontend.
+ * E2E chat routing checks against the running backend.
+ * Default target: http://localhost:8999 (override with API_BASE_URL).
  *
- * Usage (recommended):
+ * Usage:
  *   API_BASE_URL=http://localhost:8999 npm run test
  *
  * Optional:
- *   RUN_LLM=1 npm run test
+ *   RUN_LLM=1 npm run test   # adds an LLM extraction scenario (requires OPENAI_API_KEY)
  */
 
 type SessionField = "contractType" | "location" | "department" | (string & {});
@@ -47,107 +47,49 @@ const RUN_LLM =
   process.env.RUN_LLM === "1" ||
   process.env.RUN_LLM === "true" ||
   Boolean(process.env.OPENAI_API_KEY);
+const FALLBACK_EMAIL = process.env.FALLBACK_EMAIL || "legal@acme.corp";
 
-const desiredRules: Rule[] = [
-  {
-    name: "AU Sales -> John",
-    enabled: true,
-    priority: 10,
-    conditions: [
-      { field: "contractType", op: "eq", value: "Sales" },
-      { field: "location", op: "eq", value: "Australia" },
-    ],
-    action: { type: "assign_email", value: "john@acme.com" },
-  },
-  {
-    name: "US Employment -> Alice",
-    enabled: true,
-    priority: 10,
-    conditions: [
-      { field: "contractType", op: "eq", value: "Employment" },
-      { field: "location", op: "eq", value: "United States" },
-    ],
-    action: { type: "assign_email", value: "alice@acme.com" },
-  },
-  {
-    name: "UK NDA -> Bob",
-    enabled: true,
-    priority: 9,
-    conditions: [
-      { field: "contractType", op: "eq", value: "NDA" },
-      { field: "location", op: "eq", value: "United Kingdom" },
-    ],
-    action: { type: "assign_email", value: "bob@acme.com" },
-  },
-  {
-    name: "AU Marketing -> Chloe",
-    enabled: true,
-    priority: 8,
-    conditions: [
-      { field: "department", op: "eq", value: "Marketing" },
-      { field: "location", op: "eq", value: "Australia" },
-    ],
-    action: { type: "assign_email", value: "chloe@acme.com" },
-  },
-  {
-    name: "Global HR -> Dana",
-    enabled: true,
-    priority: 6,
-    conditions: [{ field: "department", op: "eq", value: "HR" }],
-    action: { type: "assign_email", value: "dana@acme.com" },
-  },
-  {
-    name: "Global Sales (low) -> Eve",
-    enabled: true,
-    priority: 1,
-    conditions: [{ field: "contractType", op: "eq", value: "Sales" }],
-    action: { type: "assign_email", value: "eve@acme.com" },
-  },
+const REQUIRED_RULES: Array<{ id: string; enabled: boolean }> = [
+  { id: "R950_Sales_GlobalTop", enabled: true },
+  { id: "R900_Sales_AU_Engineer", enabled: true },
+  { id: "R900_Sales_AU", enabled: true },
+  { id: "R820_NDA_US_HR", enabled: true },
+  { id: "R780_Employment_SG_HR", enabled: true },
+  { id: "R770_Employment_SG", enabled: true },
+  { id: "R740_Employment", enabled: true },
+  { id: "R510_Tie_ContractType_Ops", enabled: true },
+  { id: "R511_Tie_Location_Ops", enabled: true },
+  { id: "R999_Disabled_Sales_Engineer", enabled: false },
 ];
 
 const scenarios: Scenario[] = [
   {
-    name: "AU Sales full match",
-    messages: ["I have a Sales contract in Australia"],
-    expectContains: "john@acme.com",
+    name: "Sales AU Engineer: asks then picks highest priority",
+    messages: ["Hi", "Australia", "Sales", "Engineer"],
+    expectContains: "sales-top@company.test",
   },
   {
-    name: "Missing fields multi-turn: Employment US",
-    messages: ["Need a contract reviewed", "Employment", "United States"],
-    expectContains: "alice@acme.com",
+    name: "NDA United States HR: specific beats general NDA",
+    messages: ["Hello", "United States", "NDA", "HR"],
+    expectContains: "nda-us-hr@company.test",
   },
   {
-    name: "Alias: Sales + Sydney",
-    messages: ["commercial deal from Sydney", "Sales", "Australia"],
-    expectContains: "john@acme.com",
+    name: "Employment Singapore HR: multi-step ask path",
+    messages: ["Hi there", "Singapore", "Employment", "HR"],
+    expectContains: "employment-sg-hr@company.test",
   },
   {
-    name: "Department rule: Marketing AU",
-    messages: ["Marketing campaign approval, I'm in Melbourne", "Marketing", "Australia"],
-    expectContains: "chloe@acme.com",
-  },
-  {
-    name: "Department only: HR",
-    messages: ["HR policy question about probation", "HR"],
-    expectContains: "dana@acme.com",
-  },
-  {
-    name: "Low-priority Sales fallback",
-    messages: ["Sales contract in Brazil"],
-    expectContains: "eve@acme.com",
-  },
-  {
-    name: "No match fallback",
-    messages: ["Travel reimbursement for Canada"],
-    expectContains: "legal@acme.corp",
+    name: "Fallback when no rule matches",
+    messages: ["Need help with a unique contract", "Canada", "Partnership", "HR"],
+    expectContains: FALLBACK_EMAIL,
   },
 ];
 
 if (RUN_LLM) {
   scenarios.push({
-    name: "LLM extraction: Employment US (requires API key)",
-    messages: ["I'm hiring a backend engineer", "Based in NYC"],
-    expectContains: "alice@acme.com",
+    name: "LLM extraction: one-shot Sales AU Engineer (requires API key)",
+    messages: ["I need a sales contract in Australia for our engineering team"],
+    expectContains: "sales-top@company.test",
   });
 }
 
@@ -169,35 +111,28 @@ async function getRules(): Promise<Rule[]> {
   return http<Rule[]>("/api/rules");
 }
 
-async function createRule(rule: Rule): Promise<Rule> {
-  return http<Rule>("/api/rules", {
-    method: "POST",
-    body: JSON.stringify(rule),
-  });
-}
-
-async function updateRule(id: string, rule: Rule): Promise<Rule> {
-  return http<Rule>(`/api/rules/${id}`, {
-    method: "PUT",
-    body: JSON.stringify(rule),
-  });
-}
-
-async function ensureRules(): Promise<void> {
+async function ensureRequiredRules(): Promise<void> {
   const existing = await getRules();
-  for (const rule of desiredRules) {
-    const found = existing.find((r) => r.name === rule.name);
-    if (found) continue;
-    await createRule(rule);
-    process.stdout.write(`Seeded rule: ${rule.name}\n`);
+  const missing = REQUIRED_RULES.filter((req) => !existing.some((rule) => rule.id === req.id));
+  if (missing.length) {
+    throw new Error(
+      `Missing required rules: ${missing.map((m) => m.id).join(", ")}. ` +
+        "Restart the backend to load server/data/rules.json."
+    );
   }
-}
 
-async function setRuleEnabled(name: string, enabled: boolean): Promise<void> {
-  const existing = await getRules();
-  const rule = existing.find((r) => r.name === name);
-  if (!rule?.id) throw new Error(`Rule not found: ${name}`);
-  await updateRule(rule.id, { ...rule, enabled });
+  const wrongEnabled = REQUIRED_RULES.filter((req) => {
+    const found = existing.find((rule) => rule.id === req.id);
+    return found && found.enabled !== req.enabled;
+  });
+
+  if (wrongEnabled.length) {
+    throw new Error(
+      `Rules with unexpected enabled state: ${wrongEnabled
+        .map((r) => `${r.id} (expected ${r.enabled ? "enabled" : "disabled"})`)
+        .join(", ")}`
+    );
+  }
 }
 
 async function chat(userMessage: string, conversationId?: string | null): Promise<ChatResponseDTO> {
@@ -241,11 +176,10 @@ type ResultRow =
 
 async function run(): Promise<void> {
   console.log(`API base: ${BASE_URL}`);
-  await ensureRules();
+  await ensureRequiredRules();
 
   const results: ResultRow[] = [];
 
-  // Run main scenarios
   for (const scenario of scenarios) {
     try {
       const res = await runScenario(scenario);
@@ -260,7 +194,6 @@ async function run(): Promise<void> {
     }
   }
 
-  // Conversation restore test using the first scenario's conversation
   if (results.length) {
     const convId = (results[0] as any).conversationId as string | undefined;
     if (convId) {
@@ -274,30 +207,6 @@ async function run(): Promise<void> {
         results.push({ name: "Conversation restore", passed: false, error: msg });
         console.error(`❌ Conversation restore error: ${msg}`);
       }
-    }
-  }
-
-  // Disable high priority rule and test fallback, then re-enable
-  try {
-    await setRuleEnabled("AU Sales -> John", false);
-    const res = await runScenario({
-      name: "Fallback after disabling high-priority rule",
-      messages: ["Sales contract in Australia"],
-      expectContains: "eve@acme.com",
-    });
-    results.push({ name: "Fallback after disabling high-priority rule", passed: res.passed, ...res });
-    console.log(`${res.passed ? "✅" : "❌"} Fallback after disabling high-priority rule -> ${res.lastResponse}`);
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
-    results.push({ name: "Fallback after disabling high-priority rule", passed: false, error: msg });
-    console.error(`❌ Fallback after disabling high-priority rule error: ${msg}`);
-  } finally {
-    // best effort re-enable
-    try {
-      await setRuleEnabled("AU Sales -> John", true);
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err);
-      console.error(`⚠️  Failed to re-enable AU Sales -> John: ${msg}`);
     }
   }
 
