@@ -1,107 +1,25 @@
 import { selectNextField } from '../application/nextQuestionSelector';
-import type { Condition, Field, Rule, RuleEvaluationSession } from './rules';
+import { Candidates, EvalOutput } from './ruleEngine.types';
+import { evaluateOneRule } from './ruleEvaluation';
+import type { Field, Rule, RuleEvaluationSession } from './rules';
 
-export type OneRuleEval =
-  | {
-      state: 'contradicted';
-      ruleId: string;
-      priority: number;
-      specificity: number;
-      matchedKnownCount: number;
-      reason: string;
-    }
-  | {
-      state: 'satisfied';
-      ruleId: string;
-      priority: number;
-      specificity: number;
-      matchedKnownCount: number;
-    }
-  | {
-      state: 'eligible';
-      ruleId: string;
-      priority: number;
-      specificity: number;
-      matchedKnownCount: number;
-      missingFields: Field[];
-    };
-
-export type Candidates = {
-  satisfied: Array<{ ruleId: string; specificity: number; priority: number; matchedKnownCount: number }>;
-  eligible: Array<{ ruleId: string; missingFields: Field[]; specificity: number; priority: number; matchedKnownCount: number }>;
-  contradicted?: Array<{ ruleId: string; reason: string; specificity: number; priority: number; matchedKnownCount: number }>;
-};
-
-export type EvalOutput =
-  | { decision: 'matched'; chosenRuleId: string; debug: Candidates }
-  | { decision: 'ask'; nextField: Field; debug: Candidates }
-  | { decision: 'fallback'; debug: Candidates };
+export type { OneRuleEval, Candidates, EvalOutput } from './ruleEngine.types';
+export { evaluateOneRule } from './ruleEvaluation';
 
 const DEFAULT_FIELD_ORDER: Field[] = ['contractType', 'location', 'department'];
 
-const hasValue = (value: string | null | undefined): value is string => value !== null && value !== undefined && value !== '';
-
-const describeEqMismatch = (condition: Condition, sessionValue: string | null | undefined): string => {
-  const actual = hasValue(sessionValue) ? JSON.stringify(sessionValue) : 'missing';
-  return `field ${condition.field} expected ${JSON.stringify(condition.value)} got ${actual}`;
-};
-
-export const evaluateOneRule = (rule: Rule, sessionState: RuleEvaluationSession): OneRuleEval => {
-  const missingFields: Field[] = [];
-  let matchedKnownCount = 0;
-
-  for (const condition of rule.conditions) {
-    const sessionValue = sessionState[condition.field];
-    if (!hasValue(sessionValue)) {
-      missingFields.push(condition.field);
-      continue;
-    }
-
-    if (sessionValue !== condition.value) {
-      return {
-        state: 'contradicted',
-        ruleId: rule.id,
-        priority: rule.priority,
-        specificity: rule.conditions.length,
-        matchedKnownCount,
-        reason: describeEqMismatch(condition, sessionValue),
-      };
-    }
-
-    matchedKnownCount += 1;
-  }
-
-  const uniqueMissing = Array.from(new Set(missingFields));
-
-  if (uniqueMissing.length === 0) {
-    return {
-      state: 'satisfied',
-      ruleId: rule.id,
-      priority: rule.priority,
-      specificity: rule.conditions.length,
-      matchedKnownCount,
-    };
-  }
-
-  return {
-    state: 'eligible',
-    ruleId: rule.id,
-    priority: rule.priority,
-    specificity: rule.conditions.length,
-    matchedKnownCount,
-    missingFields: uniqueMissing,
-  };
-};
-
-export const evaluateRules = ({
+const rankCandidates = ({
   rules,
   sessionState,
 }: {
   rules: Rule[];
   sessionState: RuleEvaluationSession;
-}): EvalOutput => {
-  const activeRules = rules.filter((rule) => rule.enabled);
-
+}): {
+  bestSatisfied?: { ruleId: string; specificity: number; priority: number; matchedKnownCount: number };
+  bestEligible?: { ruleId: string; missingFields: Field[]; specificity: number; priority: number; matchedKnownCount: number };
+  candidateRulesForNextField: Rule[];
+  debug: Candidates;
+} => {
   const satisfied: Candidates['satisfied'] = [];
   const eligible: Candidates['eligible'] = [];
   const contradicted: NonNullable<Candidates['contradicted']> = [];
@@ -109,7 +27,7 @@ export const evaluateRules = ({
   const satisfiedRules: Rule[] = [];
   const eligibleRules: Rule[] = [];
 
-  for (const rule of activeRules) {
+  for (const rule of rules) {
     const result = evaluateOneRule(rule, sessionState);
     if (result.state === 'satisfied') {
       satisfied.push({
@@ -174,19 +92,46 @@ export const evaluateRules = ({
     contradicted: contradicted.length > 0 ? contradicted : undefined,
   };
 
+  return {
+    bestSatisfied,
+    bestEligible,
+    candidateRulesForNextField: pickBestEligibleGroup(),
+    debug,
+  };
+};
+
+const chooseNextField = (sessionState: RuleEvaluationSession, candidateRules: Rule[]): Field => {
+  const selection = selectNextField({
+    known: sessionState,
+    rules: candidateRules,
+    defaultOrder: DEFAULT_FIELD_ORDER,
+  });
+
+  return selection.field;
+};
+
+export const evaluateRules = ({
+  rules,
+  sessionState,
+}: {
+  rules: Rule[];
+  sessionState: RuleEvaluationSession;
+}): EvalOutput => {
+  const activeRules = rules.filter((rule) => rule.enabled);
+
+  const {
+    bestSatisfied,
+    bestEligible,
+    candidateRulesForNextField,
+    debug,
+  } = rankCandidates({ rules: activeRules, sessionState });
+
   const decisionShouldAsk =
     bestEligible &&
     (!bestSatisfied || bestEligible.specificity > bestSatisfied.specificity);
 
   if (decisionShouldAsk || (bestEligible && !bestSatisfied)) {
-    const candidateRules = pickBestEligibleGroup();
-    const selection = selectNextField({
-      known: sessionState,
-      rules: candidateRules,
-      defaultOrder: DEFAULT_FIELD_ORDER,
-    });
-
-    const nextField = selection.field;
+    const nextField = chooseNextField(sessionState, candidateRulesForNextField);
     return { decision: 'ask', nextField, debug };
   }
 
@@ -195,13 +140,7 @@ export const evaluateRules = ({
   }
 
   if (bestEligible) {
-    const candidateRules = pickBestEligibleGroup();
-    const selection = selectNextField({
-      known: sessionState,
-      rules: candidateRules,
-      defaultOrder: DEFAULT_FIELD_ORDER,
-    });
-    const nextField = selection.field;
+    const nextField = chooseNextField(sessionState, candidateRulesForNextField);
     return { decision: 'ask', nextField, debug };
   }
 
