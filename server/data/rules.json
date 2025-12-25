@@ -7,16 +7,19 @@
     "conditions": [
       {
         "field": "contractType",
-        "operator": "equals",
+        "op": "eq",
         "value": "Sales"
       },
       {
         "field": "location",
-        "operator": "equals",
+        "op": "eq",
         "value": "Australia"
       }
     ],
-    "assigneeEmail": "john@acme.com"
+    "action": {
+      "type": "assign_email",
+      "value": "john@acme.com"
+    }
   },
   {
     "id": "f8bc8838-484f-422d-82f7-7389faeed5ba",
@@ -26,16 +29,19 @@
     "conditions": [
       {
         "field": "contractType",
-        "operator": "equals",
+        "op": "eq",
         "value": "Employment"
       },
       {
         "field": "location",
-        "operator": "equals",
+        "op": "eq",
         "value": "United States"
       }
     ],
-    "assigneeEmail": "alice@acme.com"
+    "action": {
+      "type": "assign_email",
+      "value": "alice@acme.com"
+    }
   },
   {
     "id": "ac47b4a3-9f3a-4b0c-aa6c-6824e171deea",
@@ -45,16 +51,19 @@
     "conditions": [
       {
         "field": "contractType",
-        "operator": "equals",
+        "op": "eq",
         "value": "NDA"
       },
       {
         "field": "location",
-        "operator": "equals",
+        "op": "eq",
         "value": "United Kingdom"
       }
     ],
-    "assigneeEmail": "bob@acme.com"
+    "action": {
+      "type": "assign_email",
+      "value": "bob@acme.com"
+    }
   },
   {
     "id": "ba5bc7c0-e36b-46f7-91ec-3c98f0453a39",
@@ -64,16 +73,19 @@
     "conditions": [
       {
         "field": "department",
-        "operator": "equals",
+        "op": "eq",
         "value": "Marketing"
       },
       {
         "field": "location",
-        "operator": "equals",
+        "op": "eq",
         "value": "Australia"
       }
     ],
-    "assigneeEmail": "chloe@acme.com"
+    "action": {
+      "type": "assign_email",
+      "value": "chloe@acme.com"
+    }
   },
   {
     "id": "cb6be853-1a14-49e0-a06b-3d7b18e4f885",
@@ -83,11 +95,14 @@
     "conditions": [
       {
         "field": "department",
-        "operator": "equals",
+        "op": "eq",
         "value": "HR"
       }
     ],
-    "assigneeEmail": "dana@acme.com"
+    "action": {
+      "type": "assign_email",
+      "value": "dana@acme.com"
+    }
   },
   {
     "id": "b04c90d5-aac5-4e86-a4ac-9303e15deaa3",
@@ -97,21 +112,24 @@
     "conditions": [
       {
         "field": "contractType",
-        "operator": "equals",
+        "op": "eq",
         "value": "NDA"
       },
       {
         "field": "location",
-        "operator": "equals",
+        "op": "eq",
         "value": "Australia"
       },
       {
         "field": "department",
-        "operator": "equals",
+        "op": "eq",
         "value": "aa"
       }
     ],
-    "assigneeEmail": "dddd@qq.com"
+    "action": {
+      "type": "assign_email",
+      "value": "dddd@qq.com"
+    }
   },
   {
     "id": "93a2294e-b467-44cb-9f65-7fb20a64ed25",
@@ -121,10 +139,13 @@
     "conditions": [
       {
         "field": "contractType",
-        "operator": "equals",
+        "op": "eq",
         "value": "Sales"
       }
     ],
-    "assigneeEmail": "280998717@qq.com"
+    "action": {
+      "type": "assign_email",
+      "value": "280998717@qq.com"
+    }
   }
 ]

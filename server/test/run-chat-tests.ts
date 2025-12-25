@@ -12,23 +12,17 @@
  *   RUN_LLM=1 npm run test
  */
 
-type Operator = "equals";
-
 type SessionField = "contractType" | "location" | "department" | (string & {});
 
-type Condition = {
-  field: SessionField;
-  operator: Operator;
-  value: string;
-};
+type Condition = { field: SessionField; op: "eq"; value: string };
 
 type Rule = {
   id?: string;
-  name: string;
+  name?: string;
   enabled: boolean;
   priority: number;
   conditions: Condition[];
-  assigneeEmail: string;
+  action: { type: "assign_email"; value: string };
 };
 
 type Scenario = {
@@ -60,54 +54,54 @@ const desiredRules: Rule[] = [
     enabled: true,
     priority: 10,
     conditions: [
-      { field: "contractType", operator: "equals", value: "Sales" },
-      { field: "location", operator: "equals", value: "Australia" },
+      { field: "contractType", op: "eq", value: "Sales" },
+      { field: "location", op: "eq", value: "Australia" },
     ],
-    assigneeEmail: "john@acme.com",
+    action: { type: "assign_email", value: "john@acme.com" },
   },
   {
     name: "US Employment -> Alice",
     enabled: true,
     priority: 10,
     conditions: [
-      { field: "contractType", operator: "equals", value: "Employment" },
-      { field: "location", operator: "equals", value: "United States" },
+      { field: "contractType", op: "eq", value: "Employment" },
+      { field: "location", op: "eq", value: "United States" },
     ],
-    assigneeEmail: "alice@acme.com",
+    action: { type: "assign_email", value: "alice@acme.com" },
   },
   {
     name: "UK NDA -> Bob",
     enabled: true,
     priority: 9,
     conditions: [
-      { field: "contractType", operator: "equals", value: "NDA" },
-      { field: "location", operator: "equals", value: "United Kingdom" },
+      { field: "contractType", op: "eq", value: "NDA" },
+      { field: "location", op: "eq", value: "United Kingdom" },
     ],
-    assigneeEmail: "bob@acme.com",
+    action: { type: "assign_email", value: "bob@acme.com" },
   },
   {
     name: "AU Marketing -> Chloe",
     enabled: true,
     priority: 8,
     conditions: [
-      { field: "department", operator: "equals", value: "Marketing" },
-      { field: "location", operator: "equals", value: "Australia" },
+      { field: "department", op: "eq", value: "Marketing" },
+      { field: "location", op: "eq", value: "Australia" },
     ],
-    assigneeEmail: "chloe@acme.com",
+    action: { type: "assign_email", value: "chloe@acme.com" },
   },
   {
     name: "Global HR -> Dana",
     enabled: true,
     priority: 6,
-    conditions: [{ field: "department", operator: "equals", value: "HR" }],
-    assigneeEmail: "dana@acme.com",
+    conditions: [{ field: "department", op: "eq", value: "HR" }],
+    action: { type: "assign_email", value: "dana@acme.com" },
   },
   {
     name: "Global Sales (low) -> Eve",
     enabled: true,
     priority: 1,
-    conditions: [{ field: "contractType", operator: "equals", value: "Sales" }],
-    assigneeEmail: "eve@acme.com",
+    conditions: [{ field: "contractType", op: "eq", value: "Sales" }],
+    action: { type: "assign_email", value: "eve@acme.com" },
   },
 ];
 

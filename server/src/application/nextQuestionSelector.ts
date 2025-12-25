@@ -13,7 +13,23 @@ type FieldStats = {
   values: Set<string>;
 };
 
-const isKnown = (value: string | null | undefined): value is string => value !== null && value !== undefined;
+const isKnown = (value: string | null | undefined): value is string =>
+  value !== null && value !== undefined && value !== '';
+
+const matchesKnownCondition = (
+  condition: Rule['conditions'][number],
+  knownValue: string | null | undefined,
+): boolean => {
+  if (!isKnown(knownValue)) {
+    return true;
+  }
+
+  return knownValue === condition.value;
+};
+
+const describeConditionValue = (condition: Rule['conditions'][number]): string => {
+  return condition.value;
+};
 
 const pickFallbackField = (missingCandidates: FieldName[], defaultOrder: FieldName[]): FieldName =>
   missingCandidates[0] ?? defaultOrder[0];
@@ -23,7 +39,9 @@ export function selectNextField({ known, rules, defaultOrder }: SelectArgs): { f
 
   const candidateRules = rules
     .filter((rule) => rule.enabled)
-    .filter((rule) => rule.conditions.every((condition) => !isKnown(known[condition.field]) || known[condition.field] === condition.value));
+    .filter((rule) =>
+      rule.conditions.every((condition) => matchesKnownCondition(condition, known[condition.field])),
+    );
 
   if (candidateRules.length === 0) {
     const field = pickFallbackField(missingCandidates, defaultOrder);
@@ -40,7 +58,7 @@ export function selectNextField({ known, rules, defaultOrder }: SelectArgs): { f
 
       const existing = stats.get(condition.field) ?? { count: 0, values: new Set<string>() };
       existing.count += 1;
-      existing.values.add(condition.value);
+      existing.values.add(describeConditionValue(condition));
       stats.set(condition.field, existing);
     }
   }

@@ -1,5 +1,6 @@
-import type { RuleEvaluationSession, Rule, Field, RuleEvaluation } from '../../domain/rules';
-import { evaluateRules } from '../../domain/ruleEngine';
+import type { RuleEvaluationSession, Rule, Field } from '../../domain/rules';
+import { getAssigneeEmail } from '../../domain/rules';
+import { evaluateRules, type Candidates } from '../../domain/ruleEngine';
 
 export type RuleRepository = {
   getAll(): Promise<Rule[]> | Rule[];
@@ -7,6 +8,7 @@ export type RuleRepository = {
 
 export type RoutingDebugInfo = {
   evaluatedRules: Array<{ id: string; priority: number; enabled: boolean }>;
+  candidates?: Candidates;
   reason?: string;
 };
 
@@ -26,21 +28,15 @@ export type Router = {
   route(params: RouteParams): Promise<RoutingDecision>;
 };
 
-const buildDebugInfo = (rules: Rule[], reason?: string): RoutingDebugInfo => ({
+const buildDebugInfo = (rules: Rule[], reason?: string, candidates?: Candidates): RoutingDebugInfo => ({
   evaluatedRules: rules.map((rule) => ({
     id: rule.id,
     priority: rule.priority,
     enabled: rule.enabled,
   })),
   reason,
+  candidates,
 });
-
-const debugReasonMap: Record<string, (evaluation: RuleEvaluation) => string> = {
-  matched: (evaluation: RuleEvaluation) => `matched rule ${evaluation?.rule?.id}`,
-  missing_fields: (evaluation: RuleEvaluation) => `missing fields: ${evaluation?.missingFields?.join(',')}`,
-  no_match: () => 'no matching rule',
-};
-
 
 export const createRuleRouter = ({
   repository,
@@ -65,15 +61,23 @@ export const createRuleRouter = ({
     }
 
     const evaluation = engine({ rules, sessionState });
-    const debugReason = debugReasonMap[evaluation.status]?.(evaluation) ?? '';
-    const debug = includeDebug ? buildDebugInfo(rules, debugReason) : undefined;
+    const debug = includeDebug ? buildDebugInfo(rules, evaluation.decision, evaluation.debug) : undefined;
 
-    if (evaluation.status === 'matched') {
-      return { status: 'matched', matchedRuleId: evaluation.rule.id, assigneeEmail: evaluation.rule.assigneeEmail, debug };
+    if (evaluation.decision === 'matched') {
+      const matchedRule = rules.find((rule) => rule.id === evaluation.chosenRuleId);
+      if (!matchedRule) {
+        return { status: 'error', message: 'matched_rule_not_found', debug };
+      }
+      return {
+        status: 'matched',
+        matchedRuleId: matchedRule.id,
+        assigneeEmail: getAssigneeEmail(matchedRule),
+        debug,
+      };
     }
 
-    if (evaluation.status === 'missing_fields') {
-      return { status: 'missing_fields', fields: evaluation.missingFields, rules, debug };
+    if (evaluation.decision === 'ask') {
+      return { status: 'missing_fields', fields: [evaluation.nextField], debug };
     }
 
     return { status: 'no_match', debug };

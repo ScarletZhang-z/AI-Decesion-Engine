@@ -8,6 +8,16 @@ import { StatusNotice } from "../components/StatusNotice";
 import { createInitialRule } from "../constants/rules";
 import "../styles/configure.css";
 
+type ConditionPayload = RulePayload["conditions"][number];
+
+const sanitizeCondition = (condition: ConditionPayload): ConditionPayload => {
+  return { ...condition, op: "eq", value: condition.value.trim() };
+};
+
+const isConditionComplete = (condition: ConditionPayload): boolean => {
+  return typeof condition.value === "string" && condition.value.trim().length > 0;
+};
+
 export default function ConfigurePage() {
   const [rules, setRules] = useState<Rule[]>([]);
   const [formState, setFormState] = useState<RulePayload>(createInitialRule());
@@ -22,7 +32,9 @@ export default function ConfigurePage() {
     () =>
       [...rules].sort((a, b) => {
         if (a.priority === b.priority) {
-          return a.name.localeCompare(b.name);
+          const nameA = a.name ?? "";
+          const nameB = b.name ?? "";
+          return nameA.localeCompare(nameB);
         }
         return b.priority - a.priority;
       }),
@@ -71,11 +83,11 @@ export default function ConfigurePage() {
   const startEdit = (rule: Rule) => {
     setEditingId(rule.id);
     setFormState({
-      name: rule.name,
+      name: rule.name ?? "",
       enabled: rule.enabled,
       priority: rule.priority,
       conditions: rule.conditions.map((condition) => ({ ...condition })),
-      assigneeEmail: rule.assigneeEmail,
+      action: { ...rule.action },
     });
     setMessage(null);
     setError(null);
@@ -88,26 +100,17 @@ export default function ConfigurePage() {
     setError(null);
     setMessage(null);
 
-    const sanitizedConditions = formState.conditions.map((condition) => ({
-      ...condition,
-      value: condition.value.trim(),
-    }));
+    const sanitizedConditions = formState.conditions.map(sanitizeCondition);
 
     const payload: RulePayload = {
       ...formState,
-      name: formState.name.trim(),
-      assigneeEmail: formState.assigneeEmail.trim(),
+      name: formState.name.trim() || undefined,
+      action: { ...formState.action, value: formState.action.value.trim() },
       priority: Number(formState.priority),
       conditions: sanitizedConditions,
     };
 
-    if (!payload.name) {
-      setError("Rule name is required.");
-      setSubmitting(false);
-      return;
-    }
-
-    if (!payload.assigneeEmail) {
+    if (!payload.action.value) {
       setError("Assignee email is required.");
       setSubmitting(false);
       return;
@@ -125,7 +128,7 @@ export default function ConfigurePage() {
       return;
     }
 
-    if (payload.conditions.some((condition) => !condition.value)) {
+    if (payload.conditions.some((condition) => !isConditionComplete(condition))) {
       setError("Please complete all condition values.");
       setSubmitting(false);
       return;
@@ -157,8 +160,9 @@ export default function ConfigurePage() {
   };
 
   const handleDelete = async (rule: Rule) => {
+    const label = rule.name || rule.id;
     const confirmed = window.confirm(
-      `Delete rule "${rule.name}"? This cannot be undone.`
+      `Delete rule "${label}"? This cannot be undone.`
     );
     if (!confirmed) return;
 

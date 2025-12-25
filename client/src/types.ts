@@ -1,10 +1,8 @@
 export type Field = "contractType" | "location" | "department";
 
-export type Condition = {
-  field: Field;
-  operator: "equals";
-  value: string;
-};
+export type Operator = "eq";
+
+export type Condition = { field: Field; op: "eq"; value: string };
 
 export type Role = "user" | "assistant";
 
@@ -23,11 +21,11 @@ export type Message = {
 
 export type Rule = {
   id: string;
-  name: string;
+  name?: string;
   enabled: boolean;
   priority: number;
   conditions: Condition[];
-  assigneeEmail: string;
+  action: { type: "assign_email"; value: string };
 };
 
 export type RulePayload = Omit<Rule, "id">;

@@ -20,7 +20,7 @@ type Dependencies = {
 const DEFAULT_REQUIRED_FIELD_ORDER: Field[] = ['contractType', 'location', 'department'];
 const FALLBACK_EMAIL = process.env.FALLBACK_EMAIL ?? 'legal@acme.corp';
 
-const buildAskFields = (missingFields: Field[], requiredFieldOrder: Field[], preferred?: Field | null): Field[] => {
+const pickNextField = (missingFields: Field[], requiredFieldOrder: Field[], preferred?: Field | null): Field | null => {
   const prioritized: Field[] = [];
   if (preferred && missingFields.includes(preferred)) {
     prioritized.push(preferred);
@@ -39,7 +39,7 @@ const buildAskFields = (missingFields: Field[], requiredFieldOrder: Field[], pre
     }
   }
 
-  return prioritized.slice(0, 2);
+  return prioritized[0] ?? null;
 };
 
 export const createChatService = ({
@@ -86,7 +86,7 @@ export const createChatService = ({
 
     const ruleResult = await ruleRouter.route({ sessionState: conversation.sessionState });
 
-    let askFields: Field[] = [];
+    let nextField: Field | null = null;
     let assigneeEmail: string | null = null;
 
     if (ruleResult.status === 'matched') {
@@ -98,8 +98,8 @@ export const createChatService = ({
         Array.isArray(ruleResult.rules) && ruleResult.rules.length > 0
           ? selectNextField({ known: conversation.sessionState, rules: ruleResult.rules, defaultOrder: requiredFieldOrder })
           : null;
-      askFields = buildAskFields(missingFields, requiredFieldOrder, selection?.field ?? null);
-      conversation.pendingField = askFields[0] ?? null;
+      nextField = pickNextField(missingFields, requiredFieldOrder, selection?.field ?? null);
+      conversation.pendingField = nextField;
     } else {
       conversation.pendingField = null;
     }
@@ -107,7 +107,7 @@ export const createChatService = ({
     const plan = composePlan({
       userMessage: trimmedMessage,
       known: conversation.sessionState as Partial<Record<FieldName, string | null>>,
-      askFields: askFields as FieldName[],
+      nextField: nextField ?? undefined,
       assigneeEmail,
       fallbackEmail: FALLBACK_EMAIL,
     });

@@ -48,7 +48,7 @@ export function RulesTableCard({
             <tbody>
               {rules.map((rule) => (
                 <tr key={rule.id}>
-                  <td>{rule.name}</td>
+                  <td>{rule.name || "Untitled"}</td>
                   <td>
                     <span
                       className={`pill ${
@@ -62,7 +62,7 @@ export function RulesTableCard({
                   <td className="conditions-cell">
                     {rule.conditions.map(formatCondition).join(" · ")}
                   </td>
-                  <td>{rule.assigneeEmail}</td>
+                  <td>{rule.action.value}</td>
                   <td className="actions-cell">
                     <button
                       type="button"

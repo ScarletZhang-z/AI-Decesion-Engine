@@ -27,23 +27,44 @@ export function RuleModal({
 }: RuleModalProps) {
   if (!isOpen) return null;
 
+  const getDefaultStringValue = (field: Field) =>
+    field === "department" ? "" : selectValues[field][0];
+
+  const getDefaultValueForField = (field: Field, current?: string) => {
+    if (field === "department") {
+      return current ?? "";
+    }
+
+    const options = selectValues[field];
+    if (current && options.includes(current)) {
+      return current;
+    }
+
+    return getDefaultStringValue(field);
+  };
+
+  const updateCondition = (
+    index: number,
+    transform: (condition: Condition) => Condition
+  ) => {
+    onChange((prev) => ({
+      ...prev,
+      conditions: prev.conditions.map((condition, conditionIndex) =>
+        conditionIndex === index ? transform(condition) : condition
+      ),
+    }));
+  };
+
   const handleConditionFieldChange = (index: number, field: Field) => {
-    onChange((prev) => {
-      const nextConditions = prev.conditions.map((condition, conditionIndex) => {
-        if (conditionIndex !== index) return condition;
-        const nextValue = field === "department" ? "" : selectValues[field][0];
-        return { ...condition, field, value: nextValue };
-      });
-      return { ...prev, conditions: nextConditions };
+    updateCondition(index, (condition) => {
+      const nextValue = getDefaultValueForField(field, condition.value);
+      return { ...condition, field, op: "eq", value: nextValue };
     });
   };
 
   const handleConditionValueChange = (index: number, value: string) => {
-    onChange((prev) => {
-      const nextConditions = prev.conditions.map((condition, conditionIndex) =>
-        conditionIndex === index ? { ...condition, value } : condition
-      );
-      return { ...prev, conditions: nextConditions };
+    updateCondition(index, (condition) => {
+      return { ...condition, op: "eq", value };
     });
   };
 
@@ -69,34 +90,29 @@ export function RuleModal({
   };
 
   const renderConditionValueInput = (condition: Condition, index: number) => {
-    if (condition.field === "department") {
+    if (condition.field !== "department") {
+      const options = selectValues[condition.field];
       return (
-        <input
-          type="text"
+        <select
           value={condition.value}
-          onChange={(event) =>
-            handleConditionValueChange(index, event.target.value)
-          }
-          placeholder="Department"
-        />
+          onChange={(event) => handleConditionValueChange(index, event.target.value)}
+        >
+          {options.map((option) => (
+            <option key={option} value={option}>
+              {option}
+            </option>
+          ))}
+        </select>
       );
     }
 
-    const options = selectValues[condition.field];
-
     return (
-      <select
+      <input
+        type="text"
         value={condition.value}
-        onChange={(event) =>
-          handleConditionValueChange(index, event.target.value)
-        }
-      >
-        {options.map((option) => (
-          <option key={option} value={option}>
-            {option}
-          </option>
-        ))}
-      </select>
+        onChange={(event) => handleConditionValueChange(index, event.target.value)}
+        placeholder="Value"
+      />
     );
   };
 
@@ -139,7 +155,7 @@ export function RuleModal({
             <span>Name</span>
             <input
               type="text"
-              value={formState.name}
+              value={formState.name ?? ""}
               onChange={(event) =>
                 onChange((prev) => ({
                   ...prev,
@@ -206,6 +222,10 @@ export function RuleModal({
                   </select>
                 </label>
 
+                <span className="operator-label" aria-hidden="true">
+                  =
+                </span>
+
                 <label>
                   <span className="sr-only">Value</span>
                   {renderConditionValueInput(condition, index)}
@@ -228,11 +248,11 @@ export function RuleModal({
             <span>Assignee email</span>
             <input
               type="email"
-              value={formState.assigneeEmail}
+              value={formState.action.value}
               onChange={(event) =>
                 onChange((prev) => ({
                   ...prev,
-                  assigneeEmail: event.target.value,
+                  action: { ...prev.action, value: event.target.value },
                 }))
               }
               placeholder="owner@example.com"

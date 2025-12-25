@@ -3,13 +3,14 @@ import fs from 'fs';
 import { promises as fsPromises } from 'fs';
 import path from 'path';
 import { Router, Request, Response } from 'express';
-import type { Condition, Field, Rule } from '../domain/rules';
+import type { Condition, Field, Operator, Rule } from '../domain/rules';
 export type { Condition, Field, Rule } from '../domain/rules';
 
 const router = Router();
 
 const dataFilePath = path.resolve(__dirname, '../../data/rules.json');
 const allowedFields: ReadonlySet<Field> = new Set<Field>(['contractType', 'location', 'department']);
+const allowedOperators: ReadonlySet<Operator> = new Set<Operator>(['eq']);
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 let rules: Rule[] = [];
@@ -55,22 +56,22 @@ const validateConditions = (input: unknown): { ok: true; value: Condition[] } | 
 
     const maybeCondition = raw as Record<string, unknown>;
     const field = maybeCondition.field;
-    const operator = maybeCondition.operator;
+    const op = maybeCondition.op;
     const value = maybeCondition.value;
 
     if (typeof field !== 'string' || !allowedFields.has(field as Field)) {
       return { ok: false, message: `condition.field at index ${index} must be one of: ${Array.from(allowedFields).join(', ')}` };
     }
 
-    if (operator !== 'equals') {
-      return { ok: false, message: `condition.operator at index ${index} must be "equals"` };
+    if (typeof op !== 'string' || !allowedOperators.has(op as Operator)) {
+      return { ok: false, message: `condition.op at index ${index} must be one of: ${Array.from(allowedOperators).join(', ')}` };
     }
 
     if (typeof value !== 'string' || !value.trim()) {
       return { ok: false, message: `condition.value at index ${index} must be a non-empty string` };
     }
 
-    sanitized.push({ field: field as Field, operator: 'equals', value: value.trim() });
+    sanitized.push({ field: field as Field, op: 'eq', value: value.trim() });
   }
 
   return { ok: true, value: sanitized };
@@ -83,20 +84,20 @@ const validateRulePatch = (payload: Record<string, unknown>, current?: Rule) => 
     ? { ...current }
     : {
         id: crypto.randomUUID(),
-        name: '',
         enabled: true,
         priority: 0,
         conditions: [],
-        assigneeEmail: '',
+        action: { type: 'assign_email', value: '' },
       };
 
   if ('name' in payload) {
-    if (typeof payload.name !== 'string' || !payload.name.trim()) {
-      return { ok: false, message: 'name must be a non-empty string' } as const;
+    if (payload.name == null) {
+      delete next.name;
+    } else if (typeof payload.name !== 'string' || !payload.name.trim()) {
+      return { ok: false, message: 'name must be a non-empty string when provided' } as const;
+    } else {
+      next.name = payload.name.trim();
     }
-    next.name = payload.name.trim();
-  } else if (!current) {
-    return { ok: false, message: 'name is required' } as const;
   }
 
   if ('enabled' in payload) {
@@ -128,13 +129,23 @@ const validateRulePatch = (payload: Record<string, unknown>, current?: Rule) => 
     return { ok: false, message: 'conditions are required' } as const;
   }
 
-  if ('assigneeEmail' in payload) {
-    if (!isValidEmail(payload.assigneeEmail)) {
-      return { ok: false, message: 'assigneeEmail must be a valid email' } as const;
+  if ('action' in payload) {
+    const actionPayload = payload.action as Record<string, unknown>;
+    if (!actionPayload || typeof actionPayload !== 'object') {
+      return { ok: false, message: 'action must be an object' } as const;
     }
-    next.assigneeEmail = payload.assigneeEmail;
+
+    if (actionPayload.type !== 'assign_email') {
+      return { ok: false, message: 'action.type must be "assign_email"' } as const;
+    }
+
+    if (!isValidEmail(actionPayload.value)) {
+      return { ok: false, message: 'action.value must be a valid email' } as const;
+    }
+
+    next.action = { type: 'assign_email', value: (actionPayload.value as string).trim() };
   } else if (!current) {
-    return { ok: false, message: 'assigneeEmail is required' } as const;
+    return { ok: false, message: 'action is required' } as const;
   }
 
   return { ok: true, value: next } as const;

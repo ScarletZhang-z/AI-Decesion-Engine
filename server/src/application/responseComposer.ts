@@ -4,7 +4,7 @@ export type Tone = 'friendly' | 'professional' | 'concise';
 export type ResponsePlan =
   | {
       kind: 'ask';
-      askFields: FieldName[];
+      nextField: FieldName;
       known: Partial<Record<FieldName, string | null>>;
       quickReplies?: string[];
       textTemplate: string;
@@ -41,20 +41,15 @@ const questionForField = (field: FieldName): string => {
   }
 };
 
-const buildAskTemplate = (askFields: FieldName[]): { textTemplate: string; quickReplies?: string[] } => {
+const buildAskTemplate = (field: FieldName): { textTemplate: string; quickReplies?: string[] } => {
   const intro = 'Hello - I can help route this to the right legal teammate.';
-  const preface = askFields.length > 1 ? 'To get you to the right person, I just need a couple details:' : 'To get you to the right person, I just need one quick detail:';
-
-  const questions = askFields.map((field, index) => {
-    const q = questionForField(field);
-    return askFields.length > 1 ? `${index + 1}) ${q}` : q;
-  });
-
-  const quickReplies = askFields.flatMap((field) => QUICK_REPLY_MAP[field] ?? []);
+  const preface = 'I just need one quick detail:';
+  const question = questionForField(field);
+  const quickReplies = QUICK_REPLY_MAP[field];
 
   return {
-    textTemplate: `${intro} ${preface} ${questions.join(' ')}`,
-    quickReplies: quickReplies.length > 0 ? quickReplies : undefined,
+    textTemplate: `${intro} ${preface} ${question}`,
+    quickReplies: quickReplies && quickReplies.length > 0 ? quickReplies : undefined,
   };
 };
 
@@ -93,19 +88,18 @@ const buildFallbackTemplate = (fallbackEmail: string): string =>
 export function composePlan(args: {
   userMessage: string;
   known: Partial<Record<FieldName, string | null>>;
-  askFields?: FieldName[];
+  nextField?: FieldName;
   assigneeEmail?: string | null;
   fallbackEmail: string;
   tone?: Tone;
 }): ResponsePlan {
-  const askFields = (args.askFields ?? []).slice(0, 2);
   const assigneeEmail = args.assigneeEmail ?? undefined;
-  
-  if (askFields.length > 0) {
-    const { textTemplate, quickReplies } = buildAskTemplate(askFields);
+
+  if (args.nextField) {
+    const { textTemplate, quickReplies } = buildAskTemplate(args.nextField);
     return {
       kind: 'ask',
-      askFields,
+      nextField: args.nextField,
       known: args.known,
       quickReplies,
       textTemplate,

@@ -1,25 +1,21 @@
 export type Field = 'contractType' | 'location' | 'department';
-export type Operator = 'equals';
 
-export type Condition = {
-  field: Field;
-  operator: Operator;
-  value: string;
-};
+export type Operator = 'eq';
+
+export type Condition = { field: Field; op: 'eq'; value: string };
+
+export type RuleAction = { type: 'assign_email'; value: string };
 
 export type Rule = {
   id: string;
-  name: string;
+  name?: string;
   enabled: boolean;
   priority: number;
   conditions: Condition[];
-  assigneeEmail: string;
+  action: RuleAction;
 };
 
 export type RuleEvaluationSession = Record<Field, string | null>;
 
-export type RuleEvaluation = {
-  status: 'matched' | 'missing_fields' | 'no_match';
-  rule?: Rule;
-  missingFields?: Field[];
-}
+export const getAssigneeEmail = (rule: Rule): string =>
+  rule.action.type === 'assign_email' ? rule.action.value : '';

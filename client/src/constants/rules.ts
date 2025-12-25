@@ -13,7 +13,7 @@ export const selectValues: Record<Exclude<Field, "department">, string[]> = {
 
 export const createEmptyCondition = (field: Field = "contractType"): Condition => ({
   field,
-  operator: "equals",
+  op: "eq",
   value: field === "department" ? "" : selectValues[field][0],
 });
 
@@ -22,8 +22,10 @@ export const createInitialRule = (): RulePayload => ({
   enabled: true,
   priority: 0,
   conditions: [createEmptyCondition()],
-  assigneeEmail: "",
+  action: { type: "assign_email", value: "" },
 });
 
-export const formatCondition = (condition: Condition) =>
-  `${fieldLabels[condition.field]} = ${condition.value}`;
+export const formatCondition = (condition: Condition) => {
+  const label = fieldLabels[condition.field];
+  return `${label} = ${condition.value}`;
+};
