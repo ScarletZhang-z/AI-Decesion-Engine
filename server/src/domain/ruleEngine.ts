@@ -58,8 +58,8 @@ const rankCandidates = ({
   }
 
   const bestSatisfied = [...satisfied].sort((a, b) => {
-    if (b.priority !== a.priority) return b.priority - a.priority;
-    return b.specificity - a.specificity;
+    if (b.specificity !== a.specificity) return b.specificity - a.specificity;
+    return b.priority - a.priority;
   })[0];
 
   const bestEligible = [...eligible].sort((a, b) => {
