@@ -4,6 +4,7 @@ import { promises as fsPromises } from 'fs';
 import path from 'path';
 import { Router, Request, Response } from 'express';
 import type { Condition, Field, Operator, Rule } from '../domain/rules';
+import { toRuleListResponseDTO, toRuleRequestDTO, toRuleResponseDTO } from '../interfaces/http/dto/rules';
 export type { Condition, Field, Rule } from '../domain/rules';
 
 const router = Router();
@@ -79,7 +80,7 @@ const validateConditions = (input: unknown): { ok: true; value: Condition[] } | 
 
 const isValidEmail = (input: unknown): input is string => typeof input === 'string' && EMAIL_REGEX.test(input);
 
-const validateRulePatch = (payload: Record<string, unknown>, current?: Rule) => {
+const validateRulePatch = (payload: ReturnType<typeof toRuleRequestDTO>, current?: Rule) => {
   const next: Rule = current
     ? { ...current }
     : {
@@ -154,11 +155,11 @@ const validateRulePatch = (payload: Record<string, unknown>, current?: Rule) => 
 readInitialRules();
 
 router.get('/', (_req: Request, res: Response) => {
-  res.json(rules);
+  res.json(toRuleListResponseDTO(rules));
 });
 
 router.post('/', async (req: Request, res: Response) => {
-  const payload = (req.body ?? {}) as Record<string, unknown>;
+  const payload = toRuleRequestDTO(req.body);
   const result = validateRulePatch(payload);
 
   if (!result.ok) {
@@ -170,7 +171,7 @@ router.post('/', async (req: Request, res: Response) => {
 
   try {
     await persistRules();
-    res.status(201).json(result.value);
+    res.status(201).json(toRuleResponseDTO(result.value));
   } catch (error) {
     console.error('Failed to persist rules after create', error);
     res.status(500).json({ error: 'Failed to save rule' });
@@ -186,7 +187,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     return;
   }
 
-  const payload = (req.body ?? {}) as Record<string, unknown>;
+  const payload = toRuleRequestDTO(req.body);
   const result = validateRulePatch(payload, rules[existingIndex]);
 
   if (!result.ok) {
@@ -198,7 +199,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 
   try {
     await persistRules();
-    res.json(result.value);
+    res.json(toRuleResponseDTO(result.value));
   } catch (error) {
     console.error('Failed to persist rules after update', error);
     res.status(500).json({ error: 'Failed to save rule' });

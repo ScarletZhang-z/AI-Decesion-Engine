@@ -4,7 +4,6 @@ import type { Router as RuleRouter } from '../routing/ruleRouter';
 import { Conversation, appendHistory, updateSessionState } from '../../domain/conversation';
 import type { FieldExtractor } from './fieldParsers';
 import { parseAnswerForField } from './fieldParsers';
-import { selectNextField } from '../nextQuestionSelector';
 import { composePlan } from '../responseComposer';
 import type { FieldName } from '../responseComposer';
 import { rewriteWithLLM } from '../llmCopywriter';
