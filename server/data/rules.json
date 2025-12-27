@@ -4,8 +4,17 @@
     "name": "Priority wins over specificity: Sales only, top priority",
     "enabled": true,
     "priority": 950,
-    "conditions": [{ "field": "contractType", "op": "eq", "value": "Sales" }],
-    "action": { "type": "assign_email", "value": "sales-top@company.test" }
+    "conditions": [
+      {
+        "field": "contractType",
+        "op": "eq",
+        "value": "Sales"
+      }
+    ],
+    "action": {
+      "type": "assign_email",
+      "value": "sales-top@company.test"
+    }
   },
   {
     "id": "R900_Sales_AU_Engineer",
@@ -13,11 +22,26 @@
     "enabled": true,
     "priority": 900,
     "conditions": [
-      { "field": "contractType", "op": "eq", "value": "Sales" },
-      { "field": "location", "op": "eq", "value": "Australia" },
-      { "field": "department", "op": "eq", "value": "Engineer" }
+      {
+        "field": "contractType",
+        "op": "eq",
+        "value": "Sales"
+      },
+      {
+        "field": "location",
+        "op": "eq",
+        "value": "Australia"
+      },
+      {
+        "field": "department",
+        "op": "eq",
+        "value": "Engineering"
+      }
     ],
-    "action": { "type": "assign_email", "value": "sales-au-eng@company.test" }
+    "action": {
+      "type": "assign_email",
+      "value": "sales-au-eng@company.test"
+    }
   },
   {
     "id": "R900_Sales_AU",
@@ -25,10 +49,21 @@
     "enabled": true,
     "priority": 900,
     "conditions": [
-      { "field": "contractType", "op": "eq", "value": "Sales" },
-      { "field": "location", "op": "eq", "value": "Australia" }
+      {
+        "field": "contractType",
+        "op": "eq",
+        "value": "Sales"
+      },
+      {
+        "field": "location",
+        "op": "eq",
+        "value": "Australia"
+      }
     ],
-    "action": { "type": "assign_email", "value": "sales-au@company.test" }
+    "action": {
+      "type": "assign_email",
+      "value": "sales-au@company.test"
+    }
   },
   {
     "id": "R850_Sales_Engineer",
@@ -36,10 +71,21 @@
     "enabled": true,
     "priority": 850,
     "conditions": [
-      { "field": "contractType", "op": "eq", "value": "Sales" },
-      { "field": "department", "op": "eq", "value": "Engineer" }
+      {
+        "field": "contractType",
+        "op": "eq",
+        "value": "Sales"
+      },
+      {
+        "field": "department",
+        "op": "eq",
+        "value": "Engineer"
+      }
     ],
-    "action": { "type": "assign_email", "value": "sales-eng@company.test" }
+    "action": {
+      "type": "assign_email",
+      "value": "sales-eng@company.test"
+    }
   },
   {
     "id": "R820_NDA_US_HR",
@@ -47,19 +93,43 @@
     "enabled": true,
     "priority": 820,
     "conditions": [
-      { "field": "contractType", "op": "eq", "value": "NDA" },
-      { "field": "location", "op": "eq", "value": "United States" },
-      { "field": "department", "op": "eq", "value": "HR" }
+      {
+        "field": "contractType",
+        "op": "eq",
+        "value": "NDA"
+      },
+      {
+        "field": "location",
+        "op": "eq",
+        "value": "United States"
+      },
+      {
+        "field": "department",
+        "op": "eq",
+        "value": "HR"
+      }
     ],
-    "action": { "type": "assign_email", "value": "nda-us-hr@company.test" }
+    "action": {
+      "type": "assign_email",
+      "value": "nda-us-hr@company.test"
+    }
   },
   {
     "id": "R800_NDA",
     "name": "NDA only",
     "enabled": true,
     "priority": 800,
-    "conditions": [{ "field": "contractType", "op": "eq", "value": "NDA" }],
-    "action": { "type": "assign_email", "value": "nda@company.test" }
+    "conditions": [
+      {
+        "field": "contractType",
+        "op": "eq",
+        "value": "NDA"
+      }
+    ],
+    "action": {
+      "type": "assign_email",
+      "value": "nda@company.test"
+    }
   },
   {
     "id": "R780_Employment_SG_HR",
@@ -67,11 +137,26 @@
     "enabled": true,
     "priority": 780,
     "conditions": [
-      { "field": "contractType", "op": "eq", "value": "Employment" },
-      { "field": "location", "op": "eq", "value": "Singapore" },
-      { "field": "department", "op": "eq", "value": "HR" }
+      {
+        "field": "contractType",
+        "op": "eq",
+        "value": "Employment"
+      },
+      {
+        "field": "location",
+        "op": "eq",
+        "value": "Singapore"
+      },
+      {
+        "field": "department",
+        "op": "eq",
+        "value": "HR"
+      }
     ],
-    "action": { "type": "assign_email", "value": "employment-sg-hr@company.test" }
+    "action": {
+      "type": "assign_email",
+      "value": "employment-sg-hr@company.test"
+    }
   },
   {
     "id": "R770_Employment_SG",
@@ -79,10 +164,21 @@
     "enabled": true,
     "priority": 770,
     "conditions": [
-      { "field": "contractType", "op": "eq", "value": "Employment" },
-      { "field": "location", "op": "eq", "value": "Singapore" }
+      {
+        "field": "contractType",
+        "op": "eq",
+        "value": "Employment"
+      },
+      {
+        "field": "location",
+        "op": "eq",
+        "value": "Singapore"
+      }
     ],
-    "action": { "type": "assign_email", "value": "employment-sg@company.test" }
+    "action": {
+      "type": "assign_email",
+      "value": "employment-sg@company.test"
+    }
   },
   {
     "id": "R760_Employment_HR",
@@ -90,18 +186,38 @@
     "enabled": true,
     "priority": 760,
     "conditions": [
-      { "field": "contractType", "op": "eq", "value": "Employment" },
-      { "field": "department", "op": "eq", "value": "HR" }
+      {
+        "field": "contractType",
+        "op": "eq",
+        "value": "Employment"
+      },
+      {
+        "field": "department",
+        "op": "eq",
+        "value": "HR"
+      }
     ],
-    "action": { "type": "assign_email", "value": "employment-hr@company.test" }
+    "action": {
+      "type": "assign_email",
+      "value": "employment-hr@company.test"
+    }
   },
   {
     "id": "R740_Employment",
     "name": "Employment only",
     "enabled": true,
     "priority": 740,
-    "conditions": [{ "field": "contractType", "op": "eq", "value": "Employment" }],
-    "action": { "type": "assign_email", "value": "employment@company.test" }
+    "conditions": [
+      {
+        "field": "contractType",
+        "op": "eq",
+        "value": "Employment"
+      }
+    ],
+    "action": {
+      "type": "assign_email",
+      "value": "employment@company.test"
+    }
   },
   {
     "id": "R630_Employment_Brazil",
@@ -109,10 +225,21 @@
     "enabled": true,
     "priority": 630,
     "conditions": [
-      { "field": "contractType", "op": "eq", "value": "Employment" },
-      { "field": "location", "op": "eq", "value": "Brazil" }
+      {
+        "field": "contractType",
+        "op": "eq",
+        "value": "Employment"
+      },
+      {
+        "field": "location",
+        "op": "eq",
+        "value": "Brazil"
+      }
     ],
-    "action": { "type": "assign_email", "value": "employment-brazil@company.test" }
+    "action": {
+      "type": "assign_email",
+      "value": "employment-brazil@company.test"
+    }
   },
   {
     "id": "R620_Employment_Finance",
@@ -120,10 +247,21 @@
     "enabled": true,
     "priority": 620,
     "conditions": [
-      { "field": "contractType", "op": "eq", "value": "Employment" },
-      { "field": "department", "op": "eq", "value": "Finance" }
+      {
+        "field": "contractType",
+        "op": "eq",
+        "value": "Employment"
+      },
+      {
+        "field": "department",
+        "op": "eq",
+        "value": "Finance"
+      }
     ],
-    "action": { "type": "assign_email", "value": "employment-finance@company.test" }
+    "action": {
+      "type": "assign_email",
+      "value": "employment-finance@company.test"
+    }
   },
   {
     "id": "R610_Employment_Brazil_Finance",
@@ -131,11 +269,26 @@
     "enabled": true,
     "priority": 610,
     "conditions": [
-      { "field": "contractType", "op": "eq", "value": "Employment" },
-      { "field": "location", "op": "eq", "value": "Brazil" },
-      { "field": "department", "op": "eq", "value": "Finance" }
+      {
+        "field": "contractType",
+        "op": "eq",
+        "value": "Employment"
+      },
+      {
+        "field": "location",
+        "op": "eq",
+        "value": "Brazil"
+      },
+      {
+        "field": "department",
+        "op": "eq",
+        "value": "Finance"
+      }
     ],
-    "action": { "type": "assign_email", "value": "employment-brazil-finance@company.test" }
+    "action": {
+      "type": "assign_email",
+      "value": "employment-brazil-finance@company.test"
+    }
   },
   {
     "id": "R510_Tie_ContractType_Ops",
@@ -143,10 +296,21 @@
     "enabled": true,
     "priority": 510,
     "conditions": [
-      { "field": "contractType", "op": "eq", "value": "Partnership" },
-      { "field": "department", "op": "eq", "value": "Ops" }
+      {
+        "field": "contractType",
+        "op": "eq",
+        "value": "Partnership"
+      },
+      {
+        "field": "department",
+        "op": "eq",
+        "value": "Ops"
+      }
     ],
-    "action": { "type": "assign_email", "value": "tie-contract@company.test" }
+    "action": {
+      "type": "assign_email",
+      "value": "tie-contract@company.test"
+    }
   },
   {
     "id": "R511_Tie_Location_Ops",
@@ -154,10 +318,21 @@
     "enabled": true,
     "priority": 510,
     "conditions": [
-      { "field": "location", "op": "eq", "value": "Germany" },
-      { "field": "department", "op": "eq", "value": "Ops" }
+      {
+        "field": "location",
+        "op": "eq",
+        "value": "Germany"
+      },
+      {
+        "field": "department",
+        "op": "eq",
+        "value": "Ops"
+      }
     ],
-    "action": { "type": "assign_email", "value": "tie-location@company.test" }
+    "action": {
+      "type": "assign_email",
+      "value": "tie-location@company.test"
+    }
   },
   {
     "id": "R999_Disabled_Sales_Engineer",
@@ -165,9 +340,20 @@
     "enabled": false,
     "priority": 999,
     "conditions": [
-      { "field": "contractType", "op": "eq", "value": "Sales" },
-      { "field": "department", "op": "eq", "value": "Engineer" }
+      {
+        "field": "contractType",
+        "op": "eq",
+        "value": "Sales"
+      },
+      {
+        "field": "department",
+        "op": "eq",
+        "value": "Engineer"
+      }
     ],
-    "action": { "type": "assign_email", "value": "disabled@company.test" }
+    "action": {
+      "type": "assign_email",
+      "value": "disabled@company.test"
+    }
   }
 ]
