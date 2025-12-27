@@ -1,4 +1,4 @@
-import { Field } from '../domain/rules';
+import { Field } from '../domain/rules.types';
 import fs from 'fs';
 import path from 'path';
 

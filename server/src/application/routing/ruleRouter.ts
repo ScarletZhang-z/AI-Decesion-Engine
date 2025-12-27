@@ -1,7 +1,7 @@
-import type { RuleEvaluationSession, Rule, Field } from '../../domain/rules';
-import { getAssigneeEmail } from '../../domain/rules';
+import type { RuleEvaluationSession, Rule, Field } from '../../domain/rules.types';
+import { getAssigneeEmail } from '../../domain/rules.types';
 import { evaluateRules, type Candidates } from '../../domain/ruleEngine';
-import type { RuleRepository } from '../rules/ruleRepository';
+import type { RuleRepository } from '../rules/ruleRepository.types';
 
 export type RoutingDebugInfo = {
   evaluatedRules: Array<{ id: string; priority: number; enabled: boolean }>;
@@ -82,3 +82,4 @@ export const createRuleRouter = ({
     return { status: 'no_match', debug };
   },
 });
+

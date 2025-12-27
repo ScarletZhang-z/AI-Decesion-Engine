@@ -66,6 +66,8 @@ export const createLLMFieldExtractor = (openai: OpenAI): FieldExtractor => {
           return {};
         }
 
+        // console.log('LLM raw response:', completion.choices);
+
         const parsed = JSON.parse(raw) as Partial<SessionState>;
 
         const result: Partial<SessionState> = {};

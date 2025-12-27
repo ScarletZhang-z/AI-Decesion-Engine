@@ -1,4 +1,4 @@
-import type { Field } from '../../domain/rules';
+import type { Field } from '../../domain/rules.types';
 import type { SessionState, ConversationHistoryEntry } from '../../domain/conversation';
 import { normalizeContractType, normalizeDepartment, normalizeLocation } from '../normalizers';
 

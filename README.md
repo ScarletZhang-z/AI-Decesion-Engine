@@ -127,3 +127,51 @@ npm run test
 - Add rule change audit/versioning to trace routing decisions
 - Add cleanup/archival strategy for `server/data/conversations` to prevent unbounded growth
 - Add rule import/export and easier environment switching (local/test) in the frontend
+
+
+## Server Tree
+```
+  tree -L 3 src    
+```
+src
+├── application
+│   ├── conversations
+│   │   ├── chatService.ts
+│   │   ├── conversationRepository.ts
+│   │   ├── fieldExtractor.ts
+│   │   └── fieldParsers.ts
+│   ├── llmCopywriter.ts
+│   ├── normalizers.ts
+│   ├── responseComposer.ts
+│   ├── routing
+│   │   └── ruleRouter.ts
+│   └── rules
+│       ├── ruleRepository.types.ts
+│       └── ruleService.ts
+├── config
+│   └── fieldOrder.ts
+├── domain
+│   ├── conversation.ts
+│   ├── ruleEngine.ts
+│   ├── ruleEngine.types.ts
+│   ├── ruleEvaluation.ts
+│   ├── rules.types.ts
+│   └── services
+│       └── nextQuestionSelector.ts
+├── env.ts
+├── index.ts
+├── infrastructure
+│   ├── container.ts
+│   ├── conversationSweep.ts
+│   ├── fsConversationRepository.ts
+│   ├── fsRuleRepository.ts
+│   └── llmFieldExtractor.ts
+├── interfaces
+│   └── http
+│       ├── app.ts
+│       ├── dto
+│       ├── routes
+│       └── server.ts
+├── routes
+│   └── chat.ts
+└── scripts

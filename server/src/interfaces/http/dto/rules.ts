@@ -1,4 +1,4 @@
-import type { Rule } from '../../../domain/rules';
+import type { Rule } from '../../../domain/rules.types';
 
 // Raw HTTP payload shape for creating/updating rules.
 // Kept permissive; validation happens in the route layer.

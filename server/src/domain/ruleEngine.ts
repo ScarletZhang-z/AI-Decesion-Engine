@@ -1,7 +1,7 @@
 import { selectNextField } from './services/nextQuestionSelector';
 import { Candidates, EvalOutput } from './ruleEngine.types';
 import { evaluateOneRule } from './ruleEvaluation';
-import type { Field, Rule, RuleEvaluationSession } from './rules';
+import type { Field, Rule, RuleEvaluationSession } from './rules.types';
 
 export type { OneRuleEval, Candidates, EvalOutput } from './ruleEngine.types';
 export { evaluateOneRule } from './ruleEvaluation';
@@ -29,6 +29,7 @@ const rankCandidates = ({
 
   for (const rule of rules) {
     const result = evaluateOneRule(rule, sessionState);
+    // console.log(`Rule ${rule.id} evaluation result:`, result);
     if (result.state === 'satisfied') {
       satisfied.push({
         ruleId: result.ruleId,
@@ -127,7 +128,9 @@ export const evaluateRules = ({
     candidateRulesForNextField,
     debug,
   } = rankCandidates({ rules: activeRules, sessionState });
-
+  // console.log('Best satisfied rule:', bestSatisfied);
+  // console.log('Best eligible rule:', bestEligible);
+  // console.log('Rule evaluation debug:', debug);
   const decisionShouldAsk =
     bestEligible &&
     (!bestSatisfied || bestEligible.specificity > bestSatisfied.specificity);

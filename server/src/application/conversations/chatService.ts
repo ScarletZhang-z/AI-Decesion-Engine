@@ -1,5 +1,5 @@
 import type { ChatCommand, ChatResponseDTO } from '../../interfaces/http/dto/chat';
-import type { Field } from '../../domain/rules';
+import type { Field } from '../../domain/rules.types';
 import type { Router as RuleRouter } from '../routing/ruleRouter';
 import { Conversation, appendHistory, updateSessionState } from '../../domain/conversation';
 import type { FieldExtractor } from './fieldExtractor';
@@ -24,18 +24,6 @@ type NormalizedCommand = {
   trimmedMessage: string;
   now: number;
   incomingId?: string;
-};
-
-const pickNextField = (missingFields: Field[], requiredFieldOrder: Field[], preferred?: Field | null): Field | null => {
-  const prioritized: Field[] = [];
-  if (preferred && missingFields.includes(preferred)) prioritized.push(preferred);
-
-  const orderedMissing = requiredFieldOrder.filter((f) => missingFields.includes(f));
-  for (const f of orderedMissing) if (!prioritized.includes(f)) prioritized.push(f);
-
-  for (const f of missingFields) if (!prioritized.includes(f)) prioritized.push(f);
-
-  return prioritized[0] ?? null;
 };
 
 const normalizeCommand = (command: ChatCommand): NormalizedCommand => {
@@ -82,7 +70,7 @@ const resolveFields = async (conversation: Conversation, trimmedMessage: string,
     });
     updateSessionState(conversation.sessionState, extracted);
   }
-
+  // console.log('Updated session state:', conversation.sessionState, parsedFromPending);
   return { parsedFromPending };
 };
 
@@ -97,6 +85,8 @@ const routeAndApply = async (
   // Route based on current session state
   const ruleResult = await ruleRouter.route({ sessionState: conversation.sessionState });
 
+
+  // Determine next field to ask or action to take
   let nextField: Field | null = null;
   let assigneeEmail: string | null = null;
   
@@ -109,7 +99,9 @@ const routeAndApply = async (
     conversation.pendingField = null;
   }
 
-  return { ruleResult, nextField, assigneeEmail };
+  nextField = conversation.pendingField;
+
+  return { nextField, assigneeEmail };
 };
 
 const buildResponse = async (params: {
@@ -169,6 +161,8 @@ export const createChatService = ({
       const { nextField, assigneeEmail } = await routeAndApply(conversation, {
         ruleRouter,
       });
+      // console.log('Next field to ask:', nextField);
+
       // Step 6: Build response for the user
       const { responseText, quickReplies } = await buildResponse({
         trimmedMessage,

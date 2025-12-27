@@ -1,4 +1,4 @@
-import type { Condition, Field, Rule, RuleEvaluationSession } from './rules';
+import type { Condition, Field, Rule, RuleEvaluationSession } from './rules.types';
 import type { OneRuleEval } from './ruleEngine.types';
 
 const hasValue = (value: string | null | undefined): value is string =>

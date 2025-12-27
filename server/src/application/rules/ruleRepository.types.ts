@@ -1,4 +1,4 @@
-import type { Rule } from '../../domain/rules';
+import type { Rule } from '../../domain/rules.types';
 
 export interface RuleRepository {
   list(): Promise<Rule[]>;

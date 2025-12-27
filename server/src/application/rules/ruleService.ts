@@ -1,6 +1,6 @@
 import crypto from 'crypto';
-import type { Condition, Field, Operator, Rule } from '../../domain/rules';
-import type { RuleRepository } from './ruleRepository';
+import type { Condition, Field, Operator, Rule } from '../../domain/rules.types';
+import type { RuleRepository } from './ruleRepository.types';
 
 const allowedFields: ReadonlySet<Field> = new Set<Field>(['contractType', 'location', 'department']);
 const allowedOperators: ReadonlySet<Operator> = new Set<Operator>(['eq']);

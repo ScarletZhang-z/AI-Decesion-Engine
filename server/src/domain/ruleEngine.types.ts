@@ -1,4 +1,4 @@
-import type { Field, Rule, RuleEvaluationSession } from './rules';
+import type { Field, Rule, RuleEvaluationSession } from './rules.types';
 
 export type OneRuleEval =
   | {
