@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import type { ConversationRepository } from '../application/conversations/conversationRepository';
+import type { ConversationRepository } from '../../../application/conversations/conversationRepository';
 
 export const createConversationsRouter = ({ repository }: { repository: ConversationRepository }): Router => {
   const router = Router();

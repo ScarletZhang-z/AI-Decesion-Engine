@@ -1,10 +1,7 @@
 import type { RuleEvaluationSession, Rule, Field } from '../../domain/rules';
 import { getAssigneeEmail } from '../../domain/rules';
 import { evaluateRules, type Candidates } from '../../domain/ruleEngine';
-
-export type RuleRepository = {
-  getAll(): Promise<Rule[]> | Rule[];
-};
+import type { RuleRepository } from '../rules/ruleRepository';
 
 export type RoutingDebugInfo = {
   evaluatedRules: Array<{ id: string; priority: number; enabled: boolean }>;
@@ -41,14 +38,16 @@ const buildDebugInfo = (rules: Rule[], reason?: string, candidates?: Candidates)
 export const createRuleRouter = ({
   repository,
   engine = evaluateRules,
+  fieldOrder,
 }: {
   repository: RuleRepository;
   engine?: typeof evaluateRules;
+  fieldOrder?: Field[];
 }): Router => ({
   async route({ sessionState, includeDebug = false }: RouteParams): Promise<RoutingDecision> {
     let rules: Rule[];
     try {
-      const loaded = await repository.getAll();
+      const loaded = await repository.list();
       rules = Array.isArray(loaded) ? loaded : [];
     } catch (error) {
       const debug = includeDebug ? buildDebugInfo([], 'rule repository error') : undefined;
@@ -60,7 +59,7 @@ export const createRuleRouter = ({
       return { status: 'no_rules', debug };
     }
 
-    const evaluation = engine({ rules, sessionState });
+    const evaluation = engine({ rules, sessionState, fieldOrder });
     const debug = includeDebug ? buildDebugInfo(rules, evaluation.decision, evaluation.debug) : undefined;
 
     if (evaluation.decision === 'matched') {

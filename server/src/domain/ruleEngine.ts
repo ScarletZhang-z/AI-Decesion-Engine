@@ -1,4 +1,4 @@
-import { selectNextField } from '../application/nextQuestionSelector';
+import { selectNextField } from './services/nextQuestionSelector';
 import { Candidates, EvalOutput } from './ruleEngine.types';
 import { evaluateOneRule } from './ruleEvaluation';
 import type { Field, Rule, RuleEvaluationSession } from './rules';
@@ -6,7 +6,7 @@ import type { Field, Rule, RuleEvaluationSession } from './rules';
 export type { OneRuleEval, Candidates, EvalOutput } from './ruleEngine.types';
 export { evaluateOneRule } from './ruleEvaluation';
 
-const DEFAULT_FIELD_ORDER: Field[] = ['contractType', 'location', 'department'];
+const FALLBACK_FIELD_ORDER: Field[] = ['contractType', 'location', 'department'];
 
 const rankCandidates = ({
   rules,
@@ -100,11 +100,11 @@ const rankCandidates = ({
   };
 };
 
-const chooseNextField = (sessionState: RuleEvaluationSession, candidateRules: Rule[]): Field => {
+const chooseNextField = (sessionState: RuleEvaluationSession, candidateRules: Rule[], fieldOrder: Field[]): Field => {
   const selection = selectNextField({
     known: sessionState,
     rules: candidateRules,
-    defaultOrder: DEFAULT_FIELD_ORDER,
+    defaultOrder: fieldOrder,
   });
 
   return selection.field;
@@ -113,9 +113,11 @@ const chooseNextField = (sessionState: RuleEvaluationSession, candidateRules: Ru
 export const evaluateRules = ({
   rules,
   sessionState,
+  fieldOrder = FALLBACK_FIELD_ORDER,
 }: {
   rules: Rule[];
   sessionState: RuleEvaluationSession;
+  fieldOrder?: Field[];
 }): EvalOutput => {
   const activeRules = rules.filter((rule) => rule.enabled);
 
@@ -131,7 +133,7 @@ export const evaluateRules = ({
     (!bestSatisfied || bestEligible.specificity > bestSatisfied.specificity);
 
   if (decisionShouldAsk || (bestEligible && !bestSatisfied)) {
-    const nextField = chooseNextField(sessionState, candidateRulesForNextField);
+    const nextField = chooseNextField(sessionState, candidateRulesForNextField, fieldOrder);
     return { decision: 'ask', nextField, debug };
   }
 
@@ -140,7 +142,7 @@ export const evaluateRules = ({
   }
 
   if (bestEligible) {
-    const nextField = chooseNextField(sessionState, candidateRulesForNextField);
+    const nextField = chooseNextField(sessionState, candidateRulesForNextField, fieldOrder);
     return { decision: 'ask', nextField, debug };
   }
 

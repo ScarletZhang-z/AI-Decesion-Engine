@@ -2,14 +2,16 @@ import './env';
 import express, { Request, Response } from 'express';
 import cors from 'cors';
 import OpenAI from 'openai';
-import rulesRouter, { getRules } from './routes/rules';
-import { createConversationsRouter } from './routes/conversations';
 import { ChatRequestDTO, toChatCommand, toChatResponseDTO } from './interfaces/http/dto/chat';
-import type { RuleRepository } from './application/routing/ruleRouter';
 import { createRuleRouter } from './application/routing/ruleRouter';
 import { createConversationRepository } from './application/conversations/conversationRepository';
 import { createChatService } from './application/conversations/chatService';
 import { createLLMFieldExtractor } from './application/conversations/llmFieldExtractor';
+import { createRulesRouter } from './interfaces/http/routes/rules';
+import { createConversationsRouter } from './interfaces/http/routes/conversations';
+import { createFsRuleRepository } from './infrastructure/fsRuleRepository';
+import { createRuleService } from './application/rules/ruleService';
+import { FIELD_ORDER } from './config/fieldOrder';
 
 if (!process.env.OPENAI_API_KEY) {
   console.warn('Warning: OPENAI_API_KEY is not set. LLM calls will fail.');
@@ -23,20 +25,22 @@ app.use(express.json({ limit: '1mb' }));
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY, baseURL: process.env.OPENAI_BASE_URL });
 
-const ruleRepository: RuleRepository = {
-  getAll: () => getRules(),
-};
+const ruleRepository = createFsRuleRepository();
+const ruleService = createRuleService({ repository: ruleRepository });
 
-
-const ruleRouter = createRuleRouter({ repository: ruleRepository });
+const ruleRouter = createRuleRouter({ repository: ruleRepository, fieldOrder: FIELD_ORDER });
 
 const conversationRepository = createConversationRepository();
 const fieldExtractor = createLLMFieldExtractor(openai);
 
-
-
-const chatService = createChatService({ conversationRepository, fieldExtractor, ruleRouter });
+const chatService = createChatService({
+  conversationRepository,
+  fieldExtractor,
+  ruleRouter,
+  requiredFieldOrder: FIELD_ORDER,
+});
 const conversationsRouter = createConversationsRouter({ repository: conversationRepository });
+const rulesRouter = createRulesRouter({ service: ruleService });
 
 setInterval(() => {
   conversationRepository.sweepExpired().catch((error) => {
