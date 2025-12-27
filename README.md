@@ -14,11 +14,21 @@ rule configuration → chat-based triage → missing field clarification → suc
 
 
 - `/api/chat` supports multi-turn chats with `conversationId`, using `pendingField` to drive follow-up questions (server/src/application/conversations/chatService.ts)
-- `/api/rules` CRUD with validation and JSON persistence (server/src/routes/rules.ts, server/data/rules.json)
+- `/api/rules` CRUD with validation and JSON persistence (server/src/interfaces/http/routes/rules.ts + server/src/application/rules/ruleService.ts + server/src/infrastructure/fsRuleRepository.ts)
 - Routing honors `priority`, `enabled`, and returns `matched` / `missing_fields` / `no_match` (server/src/domain/ruleEngine.ts)
 - OpenAI optional: field extraction (llmFieldExtractor.ts) and reply rewriting (llmCopywriter.ts); without a key it falls back to templates and continues the flow
 - Mobile-oriented chat UI and rules console (client/src/pages/ChatPage.tsx, ConfigurePage.tsx)
 - Integration test script covers routing and conversation restore (server/test/run-chat-tests.ts)
+
+## Backend Architecture (DDD/clean layering)
+- **Entry/composition**: `server/src/index.ts` wires dependencies, configures Express, injects repositories/services/field order, starts server.
+- **Domain**: business objects + pure logic (no framework). `domain/rules.ts`, `domain/ruleEngine.ts`, `domain/ruleEvaluation.ts`, `domain/conversation.ts`, `domain/services/nextQuestionSelector.ts`.
+- **Application**: use-cases/orchestration. Conversation flow (`application/conversations/*`, `application/routing/ruleRouter.ts`), rule use-cases (`application/rules/ruleService.ts` + `ruleRepository.ts` interfaces), response composition (`application/responseComposer.ts`), LLM helpers (`application/llmCopywriter.ts`, `application/conversations/llmFieldExtractor.ts`).
+- **Interfaces (HTTP)**: DTOs + controllers only. `interfaces/http/dto/*`, `interfaces/http/routes/{rules,conversations}.ts`, Chat endpoint logic lives in `src/index.ts` using DTO translators.
+- **Infrastructure**: concrete adapters. FS-backed rule repository `infrastructure/fsRuleRepository.ts`; conversation repository persists to disk (`application/conversations/conversationRepository.ts` also touches disk); OpenAI SDK usage inside LLM helpers.
+- **Config**: `config/fieldOrder.ts` (injected default field priority), `env.ts` for dotenv load.
+- **Data**: `server/data/rules.json` (seeded rule set for tests), `server/data/fieldAliases.json`, `server/data/conversations/` persisted transcripts.
+- **Dependency rule**: interfaces/infrastructure depend on application; application depends on domain; domain has no outward deps.
 
 ## More design notes:
 
@@ -70,7 +80,7 @@ Production/build:
 
 
 ## Data & Persistence
-- Rules: `server/data/rules.json`, loaded at startup and persisted on CRUD (routes/rules.ts)
+- Rules: `server/data/rules.json`, loaded by `infrastructure/fsRuleRepository.ts` and persisted on CRUD.
 - Field aliases: `server/data/fieldAliases.json` for contractType/location/department normalization (application/normalizers.ts)
 - Conversations: `server/data/conversations/`, each reply writes `<conversationId>.json`; in-memory cache evicts after 30 minutes idle and flushes to disk; sweep runs every 60s (conversationRepository.ts)
 
@@ -82,9 +92,9 @@ Production/build:
   - Response: `{ conversationId: string, response: string, quickReplies?: string[] }`
   - Behavior: on match returns assigneeEmail; on missing fields asks up to 2 questions with quickReplies; no match uses `FALLBACK_EMAIL`
 - `GET /api/rules` / `POST /api/rules` / `PUT /api/rules/:id` / `DELETE /api/rules/:id`
-  - Fields limited to `contractType` | `location` | `department`; operator fixed to `"equals"`; `assigneeEmail` must be a valid email (routes/rules.ts)
-  - POST/PUT persist immediately to `server/data/rules.json`
-- `GET /api/conversations/:id`: returns `{ conversationId, history: [{ role: 'user'|'assistant', content: string, ts: number }, ...] }`; 404 if not found (routes/conversations.ts)
+  - Fields limited to `contractType` | `location` | `department`; operator fixed to `"equals"`; `assigneeEmail` must be a valid email (application/rules/ruleService.ts)
+  - POST/PUT persist immediately to `server/data/rules.json` via `infrastructure/fsRuleRepository.ts`
+- `GET /api/conversations/:id`: returns `{ conversationId, history: [{ role: 'user'|'assistant', content: string, ts: number }, ...] }`; 404 if not found (interfaces/http/routes/conversations.ts)
 
 ---
 
@@ -106,7 +116,7 @@ npm run test
 ## Design Notes
 - `pendingField`: tracks the field to ask next; the next user message is parsed for that field first (chatService.ts, fieldParsers.ts)
 - `priority`/`enabled`: rules are filtered by `enabled`, sorted by `priority` desc, and evaluated in that order (ruleEngine.ts)
-- `missing_fields`: aggregates missing fields from partial matches; `selectNextField` chooses by distinctness and default order (contractType→location→department) (ruleEngine.ts, nextQuestionSelector.ts)
+- `missing_fields`: aggregates missing fields from partial matches; `selectNextField` chooses by distinctness and default order (contractType→location→department) (ruleEngine.ts, domain/services/nextQuestionSelector.ts)
 - Replies: `composePlan` builds templates; `rewriteWithLLM` only runs with an OpenAI key and must not change routing; without a key, templates and quickReplies are returned (responseComposer.ts, llmCopywriter.ts)
 - More design notes
   - [docs/Implementation_V1.0.0.md](docs/Implementation_V1.0.0.md)

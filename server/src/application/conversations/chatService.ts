@@ -2,7 +2,7 @@ import type { ChatCommand, ChatResponseDTO } from '../../interfaces/http/dto/cha
 import type { Field } from '../../domain/rules';
 import type { Router as RuleRouter } from '../routing/ruleRouter';
 import { Conversation, appendHistory, updateSessionState } from '../../domain/conversation';
-import type { FieldExtractor } from './fieldParsers';
+import type { FieldExtractor } from './fieldExtractor';
 import { parseAnswerForField } from './fieldParsers';
 import { composePlan } from '../responseComposer';
 import type { FieldName } from '../responseComposer';

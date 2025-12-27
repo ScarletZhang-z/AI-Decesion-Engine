@@ -57,10 +57,3 @@ export const questionForField = (field: Field): string => {
       return 'Please provide more information.';
   }
 };
-
-export type FieldExtractor = {
-  extractWithLLM(
-    userMessage: string,
-    options?: { history?: ConversationHistoryEntry[]; known?: Partial<SessionState> }
-  ): Promise<Partial<SessionState>>;
-};

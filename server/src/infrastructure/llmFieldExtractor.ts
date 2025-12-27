@@ -1,7 +1,7 @@
 import OpenAI from 'openai';
-import type { ConversationHistoryEntry, SessionState } from '../../domain/conversation';
-import { normalizeContractType, normalizeDepartment, normalizeLocation } from '../normalizers';
-import { FieldExtractor } from './fieldParsers';
+import type { ConversationHistoryEntry, SessionState } from '../domain/conversation';
+import { normalizeContractType, normalizeDepartment, normalizeLocation } from '../application/normalizers';
+import type { FieldExtractor } from '../application/conversations/fieldExtractor';
 
 export const createLLMFieldExtractor = (openai: OpenAI): FieldExtractor => {
   const model = process.env.OPENAI_MODEL ?? 'gpt-4o-mini';
@@ -61,13 +61,13 @@ export const createLLMFieldExtractor = (openai: OpenAI): FieldExtractor => {
         });
 
         const raw = completion.choices[0]?.message?.content ?? '';
-        
+
         if (!raw) {
           return {};
         }
 
         const parsed = JSON.parse(raw) as Partial<SessionState>;
-        
+
         const result: Partial<SessionState> = {};
 
         const contractType = normalizeContractType(parsed.contractType);

@@ -4,12 +4,12 @@ import cors from 'cors';
 import OpenAI from 'openai';
 import { ChatRequestDTO, toChatCommand, toChatResponseDTO } from './interfaces/http/dto/chat';
 import { createRuleRouter } from './application/routing/ruleRouter';
-import { createConversationRepository } from './application/conversations/conversationRepository';
 import { createChatService } from './application/conversations/chatService';
-import { createLLMFieldExtractor } from './application/conversations/llmFieldExtractor';
 import { createRulesRouter } from './interfaces/http/routes/rules';
 import { createConversationsRouter } from './interfaces/http/routes/conversations';
 import { createFsRuleRepository } from './infrastructure/fsRuleRepository';
+import { createFsConversationRepository } from './infrastructure/fsConversationRepository';
+import { createLLMFieldExtractor } from './infrastructure/llmFieldExtractor';
 import { createRuleService } from './application/rules/ruleService';
 import { FIELD_ORDER } from './config/fieldOrder';
 
@@ -30,7 +30,7 @@ const ruleService = createRuleService({ repository: ruleRepository });
 
 const ruleRouter = createRuleRouter({ repository: ruleRepository, fieldOrder: FIELD_ORDER });
 
-const conversationRepository = createConversationRepository();
+const conversationRepository = createFsConversationRepository();
 const fieldExtractor = createLLMFieldExtractor(openai);
 
 const chatService = createChatService({
