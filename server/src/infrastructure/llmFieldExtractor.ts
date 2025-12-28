@@ -5,11 +5,14 @@ import { openai } from './openaiClient';
 
 export const createLLMFieldExtractor = (): FieldExtractor => {
   const model = process.env.OPENAI_MODEL ?? 'gpt-4o-mini';
-  const SYSTEM_PROMPT =
-    'You extract structured fields for a legal triage assistant. Use the most recent conversation context to infer values. ' +
-    'Always respond ONLY with JSON exactly matching: {"contractType": string|null, "location": string|null, "department": string|null}. ' +
-    'Prefer concise canonical values (e.g. "Sales", "Employment", "NDA", "Australia", "United States"). ' +
-    'If the value is unclear, return null. Never invent emails, steps, or extra keys.';
+  const SYSTEM_PROMPT = `You are a field extraction assistant for a legal triage system.
+    Your task: Extract contractType, location, and department from conversations.
+    Rules:
+    - Use ONLY the most recent conversation context
+    - Return canonical values (e.g., "Employment", "NDA", "Sales", "Australia")
+    - Use null for unclear values
+    - NEVER invent information
+    Output format: {"contractType": string|null, "location": string|null, "department": string|null}`;
 
   const buildUserPayload = (userMessage: string, history: ConversationHistoryEntry[], known: Partial<SessionState>) => ({
     message: userMessage,
@@ -25,9 +28,18 @@ export const createLLMFieldExtractor = (): FieldExtractor => {
     schema: {
       type: 'object',
       properties: {
-        contractType: { type: ['string', 'null'] },
-        location: { type: ['string', 'null'] },
-        department: { type: ['string', 'null'] },
+        contractType: { 
+        type: ['string', 'null'],
+        description: 'Type of contract (e.g., Employment, NDA, Service Agreement)'
+        },
+        location: { 
+          type: ['string', 'null'],
+          description: 'Country or jurisdiction (e.g., Australia, United States)'
+        },
+        department: { 
+          type: ['string', 'null'],
+          description: 'Department name (e.g., Sales, Engineering, HR)'
+        },
       },
       required: ['contractType', 'location', 'department'],
       additionalProperties: false,
