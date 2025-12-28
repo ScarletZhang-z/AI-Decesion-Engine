@@ -2,12 +2,12 @@ import type { ChatCommand, ChatResponseDTO } from '../../interfaces/http/dto/cha
 import type { Field } from '../../domain/rules.types';
 import type { Router as RuleRouter } from '../routing/ruleRouter';
 import { Conversation, appendHistory, updateSessionState } from '../../domain/conversation';
-import type { FieldExtractor } from './fieldExtractor';
+import type { FieldExtractor } from './fieldExtractor.types';
 import { parseAnswerForField } from './fieldParsers';
 import { composePlan } from '../responseComposer';
 import type { FieldName } from '../responseComposer';
 import { rewriteWithLLM } from '../llmCopywriter';
-import type { ConversationRepository } from './conversationRepository';
+import type { ConversationRepository } from './conversationRepository.types';
 import { FIELD_ORDER } from '../../config/fieldOrder';
 
 type Dependencies = {

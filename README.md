@@ -137,8 +137,8 @@ src
 ├── application
 │   ├── conversations
 │   │   ├── chatService.ts
-│   │   ├── conversationRepository.ts
-│   │   ├── fieldExtractor.ts
+│   │   ├── conversationRepository.types.ts
+│   │   ├── fieldExtractor.types.ts
 │   │   └── fieldParsers.ts
 │   ├── llmCopywriter.ts
 │   ├── normalizers.ts
@@ -166,12 +166,9 @@ src
 │   ├── fsConversationRepository.ts
 │   ├── fsRuleRepository.ts
 │   └── llmFieldExtractor.ts
-├── interfaces
-│   └── http
-│       ├── app.ts
-│       ├── dto
-│       ├── routes
-│       └── server.ts
-├── routes
-│   └── chat.ts
-└── scripts
+└── interfaces
+    └── http
+        ├── app.ts
+        ├── dto
+        ├── routes
+        └── server.ts

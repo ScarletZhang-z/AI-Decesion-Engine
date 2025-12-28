@@ -1,7 +1,7 @@
 import OpenAI from 'openai';
 import type { ConversationHistoryEntry, SessionState } from '../domain/conversation';
 import { normalizeContractType, normalizeDepartment, normalizeLocation } from '../application/normalizers';
-import type { FieldExtractor } from '../application/conversations/fieldExtractor';
+import type { FieldExtractor } from '../application/conversations/fieldExtractor.types';
 
 export const createLLMFieldExtractor = (openai: OpenAI): FieldExtractor => {
   const model = process.env.OPENAI_MODEL ?? 'gpt-4o-mini';

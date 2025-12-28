@@ -1,7 +1,7 @@
 import path from 'path';
 import { promises as fs } from 'fs';
 import { Conversation, ConversationHistoryEntry, PendingField, createConversation } from '../domain/conversation';
-import type { ConversationRepository } from '../application/conversations/conversationRepository';
+import type { ConversationRepository } from '../application/conversations/conversationRepository.types';
 
 const conversationsDir = path.resolve(__dirname, '../../data/conversations');
 const EXPIRY_MS = 30 * 60 * 1000;
