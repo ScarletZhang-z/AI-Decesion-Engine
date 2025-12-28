@@ -66,7 +66,6 @@ const resolveFields = async (conversation: Conversation, trimmedMessage: string,
       history: conversation.history,
       known: conversation.sessionState,
     });
-    console.log('Extracted fields from message:', extracted);
     updateSessionState(conversation.sessionState, extracted);
   }
 };

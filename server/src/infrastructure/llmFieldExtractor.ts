@@ -39,6 +39,7 @@ export const createLLMFieldExtractor = (openai: OpenAI): FieldExtractor => {
       userMessage: string,
       options?: { history?: ConversationHistoryEntry[]; known?: Partial<SessionState> }
     ): Promise<Partial<SessionState>> {
+      
       if (!process.env.OPENAI_API_KEY) {
         return {};
       }
@@ -57,7 +58,7 @@ export const createLLMFieldExtractor = (openai: OpenAI): FieldExtractor => {
             },
             { role: 'user', content: JSON.stringify(buildUserPayload(userMessage, history, known)) },
           ],
-          temperature: 0.3,
+          temperature: 0,
         });
 
         const raw = completion.choices[0]?.message?.content ?? '';
@@ -72,21 +73,9 @@ export const createLLMFieldExtractor = (openai: OpenAI): FieldExtractor => {
 
         const result: Partial<SessionState> = {};
 
-        const contractType = normalizeContractType(parsed.contractType);
-        const location = normalizeLocation(parsed.location);
-        const department = normalizeDepartment(parsed.department);
-
-        if (contractType !== undefined) {
-          result.contractType = contractType ?? null;
-        }
-
-        if (location !== undefined) {
-          result.location = location ?? null;
-        }
-
-        if (department !== undefined) {
-          result.department = department ?? null;
-        }
+        result.contractType = normalizeContractType(parsed.contractType);
+        result.location = normalizeLocation(parsed.location);
+        result.department = normalizeDepartment(parsed.department);
 
         return result;
       } catch (error) {
