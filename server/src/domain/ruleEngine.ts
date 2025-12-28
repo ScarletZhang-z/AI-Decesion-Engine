@@ -1,4 +1,4 @@
-import { selectNextField } from './services/nextQuestionSelector';
+import { selectNextField } from './nextQuestionSelector';
 import { Candidates, EvalOutput } from './ruleEngine.types';
 import { evaluateOneRule } from './ruleEvaluation';
 import type { Field, Rule, RuleEvaluationSession } from './rules.types';

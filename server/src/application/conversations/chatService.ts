@@ -8,7 +8,6 @@ import { composePlan } from '../responseComposer';
 import type { FieldName } from '../responseComposer';
 import { rewriteWithLLM } from '../llmCopywriter';
 import type { ConversationRepository } from './conversationRepository.types';
-import { FIELD_ORDER } from '../../config/fieldOrder';
 
 type Dependencies = {
   conversationRepository: ConversationRepository;
@@ -16,8 +15,6 @@ type Dependencies = {
   fieldExtractor: FieldExtractor;
   requiredFieldOrder?: Field[];
 };
-
-const DEFAULT_REQUIRED_FIELD_ORDER: Field[] = [...FIELD_ORDER];
 const FALLBACK_EMAIL = process.env.FALLBACK_EMAIL ?? 'legal@acme.corp';
 
 type NormalizedCommand = {

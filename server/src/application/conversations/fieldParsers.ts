@@ -1,18 +1,15 @@
 import type { Field } from '../../domain/rules.types';
-import type { SessionState, ConversationHistoryEntry } from '../../domain/conversation';
 import { normalizeContractType, normalizeDepartment, normalizeLocation } from '../normalizers';
 
 const normalizeString = (value: string) => value.trim().toLowerCase();
 
 const parseContractType = (message: string): string | null => {
-  const normalized = normalizeString(message);
 
   const normalizedValue = normalizeContractType(message);
   return normalizedValue && normalizedValue.length <= 50 ? normalizedValue : null;
 };
 
 const parseLocation = (message: string): string | null => {
-  const normalized = normalizeString(message).replace(/\./g, ' ');
 
   const normalizedValue = normalizeLocation(message);
   return normalizedValue && normalizedValue.length <= 50 ? normalizedValue : null;

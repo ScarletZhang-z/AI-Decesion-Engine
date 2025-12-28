@@ -1,4 +1,4 @@
-import type { Rule, Field } from '../rules.types';
+import type { Rule, Field } from './rules.types';
 
 export type FieldName = Field;
 
