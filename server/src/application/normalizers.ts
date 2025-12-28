@@ -79,3 +79,10 @@ export const normalizeField = (field: Field, value: string | null | undefined): 
       return null;
   }
 };
+
+export const parseField = (field: Field, value: string | null | undefined): string | null => {
+  if (!value) return null;
+  const alias = matchAlias(field, value);
+  if (alias) return alias;
+  return null;
+}

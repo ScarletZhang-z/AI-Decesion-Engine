@@ -57,6 +57,7 @@ const resolveFields = async (conversation: Conversation, trimmedMessage: string,
       conversation.sessionState[conversation.pendingField] = parsedValue;
       conversation.pendingField = null;
       parsedFromPending = true;
+      return;
     }
   }
 
@@ -65,10 +66,9 @@ const resolveFields = async (conversation: Conversation, trimmedMessage: string,
       history: conversation.history,
       known: conversation.sessionState,
     });
+    console.log('Extracted fields from message:', extracted);
     updateSessionState(conversation.sessionState, extracted);
   }
-  // console.log('Updated session state:', conversation.sessionState, parsedFromPending);
-  return { parsedFromPending };
 };
 
 const routeAndApply = async (

@@ -1,33 +1,14 @@
 import type { Field } from '../../domain/rules.types';
-import { normalizeContractType, normalizeDepartment, normalizeLocation } from '../normalizers';
-
-const normalizeString = (value: string) => value.trim().toLowerCase();
-
-const parseContractType = (message: string): string | null => {
-
-  const normalizedValue = normalizeContractType(message);
-  return normalizedValue && normalizedValue.length <= 50 ? normalizedValue : null;
-};
-
-const parseLocation = (message: string): string | null => {
-
-  const normalizedValue = normalizeLocation(message);
-  return normalizedValue && normalizedValue.length <= 50 ? normalizedValue : null;
-};
-
-const parseDepartment = (message: string): string | null => {
-  const normalizedValue = normalizeDepartment(message);
-  return normalizedValue && normalizedValue.length <= 80 ? normalizedValue : null;
-};
+import { parseField } from '../normalizers';
 
 export const parseAnswerForField = (field: Field, message: string): string | null => {
   switch (field) {
     case 'contractType':
-      return parseContractType(message);
+      return parseField(field, message);
     case 'location':
-      return parseLocation(message);
+      return parseField(field, message);
     case 'department':
-      return parseDepartment(message);
+      return parseField(field, message);
     default:
       return null;
   }
