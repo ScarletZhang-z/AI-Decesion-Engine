@@ -75,16 +75,8 @@ export async function rewriteWithLLM(args: { plan: ResponsePlan; tone?: Tone | n
     if (!raw) {
       return null;
     }
-
-    const parsed = JSON.parse(raw) as { text?: string };
-    if (!parsed || typeof parsed.text !== 'string') {
-      return null;
-    }
-
+    const parsed = JSON.parse(raw) as { text: string };
     const text = parsed.text.trim();
-    if (!text) {
-      return null;
-    }
 
     if (args.plan.kind === 'final') {
       return validateFinal(text, args.plan.assigneeEmail) ? text : null;
