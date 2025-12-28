@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { ChatRequestDTO, toChatCommand, toChatResponseDTO } from '../interfaces/http/dto/chat';
+import { ChatRequestDTO, toChatCommand, toChatResponseDTO } from '../dto/chat';
 
 export function createChatRouter({ chatService }: { chatService: any }) {
   const router = Router();
