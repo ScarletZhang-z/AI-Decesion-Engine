@@ -42,15 +42,28 @@ const validateFallback = (text: string, fallbackEmail: string): boolean => {
   return emails.every((email) => email.toLowerCase() === fallbackEmail.toLowerCase());
 };
 
-export async function rewriteWithLLM(args: { plan: ResponsePlan; tone?: Tone }): Promise<string | null> {
-  if (!process.env.OPENAI_API_KEY) {
-    return null;
-  }
+const RESPONSE_SCHEMA = { 
+    name: "rewrite_response",
+    strict: true,
+    schema: {
+      type: "object",
+      properties: {
+        text: { 
+          type: "string",
+          description: "The rewritten assistant reply"
+        }
+      },
+      required: ["text"],
+      additionalProperties: false
+    }
+} as const;
+
+export async function rewriteWithLLM(args: { plan: ResponsePlan; tone?: Tone | null }): Promise<string | null> {
 
   try {
     const completion = await openai.chat.completions.create({
       model,
-      response_format: { type: 'json_object' },
+      response_format: { type: 'json_schema', json_schema: RESPONSE_SCHEMA },
       messages: [
         { role: 'system', content: SYSTEM_PROMPT },
         { role: 'user', content: JSON.stringify({ plan: args.plan, tone: args.tone ?? null }) },
