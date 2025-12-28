@@ -1,4 +1,3 @@
-import OpenAI from 'openai';
 import { createFsRuleRepository } from './fsRuleRepository';
 import { createFsConversationRepository } from './fsConversationRepository';
 import { createLLMFieldExtractor } from './llmFieldExtractor';
@@ -14,15 +13,9 @@ export interface AppServices {
 }
 
 export function buildContainer(): AppServices {
-  // base services
-  const openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
-    baseURL: process.env.OPENAI_BASE_URL,
-  });
-
   const ruleRepository = createFsRuleRepository();
   const conversationRepository = createFsConversationRepository();
-  const fieldExtractor = createLLMFieldExtractor(openai);
+  const fieldExtractor = createLLMFieldExtractor();
 
   // application services
   const ruleRouter = createRuleRouter({

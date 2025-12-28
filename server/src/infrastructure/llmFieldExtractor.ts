@@ -1,9 +1,9 @@
-import OpenAI from 'openai';
 import type { ConversationHistoryEntry, SessionState } from '../domain/conversation';
 import { normalizeContractType, normalizeDepartment, normalizeLocation } from '../application/normalizers';
 import type { FieldExtractor } from '../application/conversations/fieldExtractor.types';
+import { openai } from './openaiClient';
 
-export const createLLMFieldExtractor = (openai: OpenAI): FieldExtractor => {
+export const createLLMFieldExtractor = (): FieldExtractor => {
   const model = process.env.OPENAI_MODEL ?? 'gpt-4o-mini';
   const SYSTEM_PROMPT =
     'You extract structured fields for a legal triage assistant. Use the most recent conversation context to infer values. ' +

@@ -1,5 +1,5 @@
-import OpenAI from 'openai';
 import type { ResponsePlan, Tone } from './responseComposer';
+import { openai } from '../infrastructure/openaiClient';
 
 const model = process.env.OPENAI_MODEL ?? 'gpt-4o-mini';
 
@@ -18,8 +18,6 @@ const SYSTEM_PROMPT = [
 
 
 const emailRegex = /[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi;
-
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY, baseURL: process.env.OPENAI_BASE_URL });
 
 const extractEmails = (text: string): string[] => Array.from(text.match(emailRegex) ?? []);
 
