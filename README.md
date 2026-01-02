@@ -1,4 +1,4 @@
-# Legal Triage Router (AI Challenge)
+# Legal Triage Router
 
 Rule-based legal triage with optional OpenAI field extraction and copy rewriting. It routes employee requests to the right legal contact and asks for missing context when needed.
 
